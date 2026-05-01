@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background: #F8F5EF;
+  color: #1C1410;
+  font-family: var(--font-body), ui-serif, Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Gold leaf fall animations — three distinct drift paths */
+@keyframes goldLeafFall1 {
+  0%   { transform: translate(0px, -80px) rotate(-18deg); opacity: 0; }
+  8%   { opacity: 0.65; }
+  25%  { transform: translate(18px, 240px) rotate(32deg); }
+  50%  { transform: translate(-12px, 480px) rotate(-8deg); }
+  73%  { transform: translate(22px, 720px) rotate(52deg); }
+  92%  { opacity: 0.65; }
+  100% { transform: translate(8px, 1050px) rotate(28deg); opacity: 0; }
+}
+
+@keyframes goldLeafFall2 {
+  0%   { transform: translate(0px, -80px) rotate(12deg); opacity: 0; }
+  8%   { opacity: 0.55; }
+  30%  { transform: translate(-22px, 290px) rotate(-28deg); }
+  55%  { transform: translate(14px, 560px) rotate(18deg); }
+  78%  { transform: translate(-18px, 800px) rotate(-42deg); }
+  92%  { opacity: 0.55; }
+  100% { transform: translate(-6px, 1050px) rotate(-16deg); opacity: 0; }
+}
+
+@keyframes goldLeafFall3 {
+  0%   { transform: translate(0px, -80px) rotate(5deg); opacity: 0; }
+  8%   { opacity: 0.7; }
+  20%  { transform: translate(25px, 190px) rotate(-18deg); }
+  45%  { transform: translate(8px, 440px) rotate(38deg); }
+  70%  { transform: translate(30px, 700px) rotate(-22deg); }
+  92%  { opacity: 0.7; }
+  100% { transform: translate(20px, 1050px) rotate(12deg); opacity: 0; }
+}
+
+.leaf-fall-1 { animation-name: goldLeafFall1; }
+.leaf-fall-2 { animation-name: goldLeafFall2; }
+.leaf-fall-3 { animation-name: goldLeafFall3; }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), ui-serif, Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
