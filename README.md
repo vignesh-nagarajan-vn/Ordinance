@@ -1,14 +1,10 @@
 # Ordinance Landing
 
-A Next.js + Tailwind landing site for Ordinance ("Capitol Intelligence"), positioning an AI operating layer for congressional offices. The site includes the main marketing page plus /why and /demo routes that explain the vision and demo availability.
+A Next.js + Tailwind landing site for Ordinance.
 
-## Repo Contents
+Ordinance is an AI-powered operating system for Congressional offices to optimize and automate work — through automatic "Actionable Insights" (AI). 
 
-- app/ - App Router pages and layouts (home, why, demo).
-- components/sections/ - Page sections (hero, navbar, insights, CTA, footer).
-- components/ui/ - Shared UI primitives and icons.
-- public/ordinance/ - Static assets.
-- docs/ - Placeholder docs structure.
+This repository consists of the landing page plus a basic demo.
 
 ## Development
 
@@ -25,10 +21,3 @@ npm run dev
 ```
 
 The app will be available at http://localhost:3000.
-
-## Useful Scripts
-
-- `npm run dev` - Start the Next.js dev server.
-- `npm run build` - Build for production.
-- `npm run start` - Run the production server.
-- `npm run lint` - Run Next.js lint.
