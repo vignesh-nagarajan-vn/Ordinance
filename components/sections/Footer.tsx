@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
+import { asset } from "@/lib/assetPath";
 
 export function Footer() {
   return (
@@ -8,7 +9,7 @@ export function Footer() {
         <div className="flex items-center justify-between gap-10">
           <div className="flex items-center gap-3">
             <Image
-              src="/ordinance/ordinance-logo.png"
+              src={asset("/ordinance/ordinance-logo.png")}
               alt="Ordinance"
               width={40}
               height={40}

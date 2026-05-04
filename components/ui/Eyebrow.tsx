@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { asset } from "@/lib/assetPath";
 
 export function Eyebrow({
   children,
@@ -11,7 +12,7 @@ export function Eyebrow({
     <div className="flex items-center justify-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-ink/70">
       {withMark && (
         <Image
-          src="/recreate/ordinance-mark.png"
+          src={asset("/recreate/ordinance-mark.png")}
           alt=""
           width={20}
           height={20}

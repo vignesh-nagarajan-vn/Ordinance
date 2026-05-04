@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { GetDemoButton } from "@/components/ui/GetDemoButton";
+import { asset } from "@/lib/assetPath";
 
 export function Navbar() {
   return (
@@ -9,7 +10,7 @@ export function Navbar() {
         <div className="flex items-center justify-between gap-6">
           <a href="/" className="flex items-center gap-3">
             <Image
-              src="/ordinance/ordinance-logo.png"
+              src={asset("/ordinance/ordinance-logo.png")}
               alt="Ordinance"
               width={32}
               height={32}

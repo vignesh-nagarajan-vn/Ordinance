@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
+import { asset } from "@/lib/assetPath";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { FeatureCell } from "@/components/ui/FeatureCell";
 import { Icon } from "@/components/ui/icons";
@@ -61,7 +62,7 @@ export function ActionableInsights() {
           <div className="order-first lg:order-none">
             <div className="relative aspect-square w-full overflow-hidden rounded-3xl">
               <Image
-                src="/ordinance/actionable_insights.png"
+                src={asset("/ordinance/actionable_insights.png")}
                 alt="Ordinance actionable insights"
                 fill
                 sizes="(max-width: 1536px)"
