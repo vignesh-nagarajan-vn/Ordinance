@@ -37,11 +37,7 @@ export function Hero() {
         </div>
       </Container>
 
-      <Container className="relative z-20 mt-16 md:mt-20">
-        <div className="overflow-hidden rounded-[28px] bg-surface-dark p-6 md:p-12">
-          <div className="mx-auto aspect-[1024/640] w-full max-w-[1100px] rounded-2xl bg-white/5" />
-        </div>
-      </Container>
+      <div className="h-24 md:h-32" aria-hidden="true" />
     </section>
   );
 }
