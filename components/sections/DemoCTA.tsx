@@ -18,7 +18,7 @@ export function DemoCTA() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <GetDemoButton />
               <a
-                href="mailto:hello@ordinance.ai"
+                href="mailto:zhandrewh@gmail.com"
                 className="inline-flex items-center gap-2 rounded-xl border border-line bg-white px-5 py-3 text-[15px] font-semibold text-ink shadow-[0_2px_0_rgba(0,0,0,0.04)] transition-colors hover:border-ink/30 hover:bg-surface-2"
               >
                 Get In Touch

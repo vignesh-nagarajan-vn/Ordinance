@@ -1,19 +1,24 @@
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { GetDemoButton } from "@/components/ui/GetDemoButton";
 import { HeadlineSparkle } from "@/components/ui/icons";
+import { asset } from "@/lib/assetPath";
 
 const cards = [
   {
     title: "Everything You Need in One Place",
     body: "PDFs, transcripts, constituent letters, policy briefs, hearing notes — set up in a few clicks. Ask away, and get answers without hallucinations.",
+    image: "/ordinance/ordinance_card1.png",
   },
   {
     title: "Agentic Feedback Profiles",
     body: "Your Chief of Staff's judgement availiable, 24/7. Continous revising to ensure the best work is always produced, cutting back-and-forth.",
+    image: "/ordinance/ordinance_card2.png",
   },
   {
     title: "Always One Step Ahead",
     body: "The system anticipates needs and acts proactively with smart insights. Never be caught off guard again.",
+    image: "/ordinance/ordinance_card3.png",
   },
 ];
 
@@ -53,7 +58,15 @@ export function ModernTools() {
         <div className="mt-16 grid grid-cols-1 gap-10 md:grid-cols-3">
           {cards.map((c) => (
             <div key={c.title} className="flex flex-col">
-              <div className="aspect-[16/10] w-full rounded-2xl border border-line bg-surface" />
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-line bg-surface">
+                <Image
+                  src={asset(c.image)}
+                  alt={c.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
               <h3 className="mt-5 text-[20px] font-semibold text-ink">
                 {c.title}
               </h3>

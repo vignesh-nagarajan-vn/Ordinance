@@ -20,18 +20,26 @@ export function Hero() {
       <Container className="relative z-20">
         <div className="flex flex-col items-center text-center">
           <h1 className="mt-10 max-w-[900px] text-[56px] font-semibold leading-[1.05] tracking-[-0.02em] text-ink md:text-[80px]">
-            Introducing
+            <span className="hero-introducing">Introducing</span>
             <br />
-            <span className="text-brand">Capitol Intelligence.</span>
+            <span
+              className="hero-stagger inline-block text-brand"
+              style={{ animationDelay: "340ms" }}
+            >
+              Capitol Intelligence.
+            </span>
           </h1>
 
-          <p className="mt-6 max-w-[640px] text-[18px] leading-[1.55] text-body md:text-[20px]">
+          <p
+            className="hero-stagger mt-6 max-w-[640px] text-[18px] leading-[1.55] text-body md:text-[20px]"
+            style={{ animationDelay: "430ms" }}
+          >
             Meet <span className="text-brand">Ordinance</span>, the most powerful
             AI operating layer for congressional offices — built for chiefs of
             staff, staffers, and members.
           </p>
 
-          <div className="mt-8">
+          <div className="hero-stagger mt-8" style={{ animationDelay: "520ms" }}>
             <GetDemoButton />
           </div>
         </div>
