@@ -4,387 +4,146 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ordinance — Capitol Intelligence Demo</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --cream:        #f0ebe0;
-  --cream-dark:   #e6dfd2;
-  --cream-card:   #faf7f2;
-  --gold:         #b8860b;
-  --gold-light:   #c9950d;
-  --gold-muted:   #d4a832;
-  --gold-pale:    #e8d5a0;
-  --gold-btn:     #8b6508;
-  --text:         #1a1710;
-  --text-mid:     #3d3826;
-  --text-muted:   #7a7260;
-  --text-faint:   #a89e88;
-  --border:       #d5ccb8;
-  --border-light: #e2d9c8;
-  --success:      #4a7c59;
-  --warning:      #9e6d14;
-  --danger:       #8b3a2e;
-  --info:         #2e5a7a;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#f0ebe0;--cream-dark:#e6dfd2;--cream-card:#faf7f2;
+  --gold:#b8860b;--gold-muted:#d4a832;--gold-pale:#e8d5a0;--gold-btn:#8b6508;
+  --text:#1a1710;--text-mid:#3d3826;--text-muted:#7a7260;--text-faint:#a89e88;
+  --border:#d5ccb8;--border-light:#e2d9c8;
+  --success:#4a7c59;--warning:#9e6d14;--danger:#8b3a2e;--info:#2e5a7a;
 }
-
-html, body {
-  height: 100%;
-  background: var(--cream);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(184,134,11,0.18) 1px, transparent 1px);
-  background-size: 22px 22px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.app { display: flex; height: 100vh; position: relative; z-index: 1; }
-
-.sidebar {
-  width: 230px;
-  min-width: 230px;
-  background: rgba(240,235,224,0.95);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-}
-
-.logo-area {
-  padding: 22px 20px 18px;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.logo { display: flex; align-items: center; gap: 9px; margin-bottom: 2px; }
-
-.logo-icon { width: 26px; height: 26px; flex-shrink: 0; }
-
-.logo-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.logo-tagline {
-  font-size: 10px;
-  color: var(--gold);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding-left: 35px;
-  font-weight: 500;
-}
-
-.nav { padding: 14px 0; flex: 1; overflow-y: auto; }
-
-.nav-section-label {
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  padding: 12px 20px 5px;
-  font-weight: 600;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 8px 20px;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 13px;
-  border-left: 2px solid transparent;
-  transition: all 0.15s;
-  user-select: none;
-}
-
-.nav-item:hover { color: var(--text); background: rgba(184,134,11,0.06); }
-
-.nav-item.active {
-  color: var(--gold-btn);
-  background: rgba(184,134,11,0.09);
-  border-left-color: var(--gold);
-}
-
-.nav-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
-
-.nav-badge {
-  margin-left: auto;
-  background: var(--cream-dark);
-  color: var(--text-muted);
-  font-size: 10px;
-  padding: 1px 7px;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-}
-
-.nav-badge.alert { background: rgba(139,58,46,0.1); color: var(--danger); border-color: rgba(139,58,46,0.2); }
-
-.sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border-light); }
-
-.agency-badge { display: flex; align-items: center; gap: 9px; }
-
-.agency-avatar {
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  background: rgba(184,134,11,0.1);
-  border: 1px solid var(--gold-pale);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 700; color: var(--gold-btn);
-  letter-spacing: 0.04em; flex-shrink: 0;
-}
-
-.agency-name { font-size: 12px; color: var(--text-mid); font-weight: 500; }
-.agency-role { font-size: 10px; color: var(--text-faint); }
-
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-.topbar {
-  height: 52px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(240,235,224,0.9);
-  display: flex; align-items: center;
-  padding: 0 28px; gap: 14px; flex-shrink: 0;
-}
-
-.topbar-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 16px; font-weight: 600; color: var(--text);
-}
-
-.topbar-meta { font-size: 12px; color: var(--text-faint); }
-.topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-
-.status-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--success); display: inline-block; margin-right: 6px;
-}
-
-.btn {
-  padding: 6px 14px; border-radius: 6px;
-  font-size: 12px; font-family: 'Inter', sans-serif;
-  cursor: pointer; transition: all 0.15s; border: 1px solid; font-weight: 500;
-}
-
-.btn-ghost { background: transparent; border-color: var(--border); color: var(--text-muted); }
-.btn-ghost:hover { color: var(--text); background: rgba(184,134,11,0.05); border-color: var(--border); }
-
-.btn-gold { background: var(--gold-btn); border-color: var(--gold-btn); color: #fff; }
-.btn-gold:hover { background: var(--gold); border-color: var(--gold); }
-
-.content { flex: 1; overflow-y: auto; padding: 28px; }
-
-.panel { display: none; }
-.panel.active { display: block; }
-
-.kb-search-area {
-  background: var(--cream-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 22px 24px;
-  margin-bottom: 24px;
-}
-
-.kb-search-label {
-  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text-faint); margin-bottom: 10px; font-weight: 600;
-}
-
-.search-input-row { display: flex; gap: 10px; align-items: flex-start; }
-
-.search-input {
-  flex: 1;
-  background: var(--cream); border: 1px solid var(--border);
-  border-radius: 6px; padding: 10px 14px;
-  color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px;
-  resize: none; min-height: 44px; transition: border-color 0.2s; outline: none;
-}
-.search-input:focus { border-color: var(--gold-muted); }
-.search-input::placeholder { color: var(--text-faint); }
-
-.search-btn {
-  padding: 10px 22px; background: var(--gold-btn); border: none; border-radius: 6px;
-  color: #fff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
-  cursor: pointer; white-space: nowrap; transition: background 0.15s;
-}
-.search-btn:hover { background: var(--gold); }
-.search-btn:disabled { background: var(--text-faint); cursor: not-allowed; }
-
-.quick-queries { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
-
-.qq-pill {
-  font-size: 11px; padding: 4px 11px; border-radius: 20px;
-  border: 1px solid var(--border); color: var(--text-muted);
-  cursor: pointer; transition: all 0.15s; background: transparent;
-}
-.qq-pill:hover { border-color: var(--gold-muted); color: var(--gold-btn); background: rgba(184,134,11,0.05); }
-
-.ai-response {
-  background: var(--cream-card);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--gold);
-  border-radius: 10px;
-  padding: 20px 24px;
-  margin-bottom: 22px;
-  display: none;
-}
-.ai-response.visible { display: block; }
-
-.ai-response-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-
-.ai-chip {
-  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-  background: rgba(184,134,11,0.1); border: 1px solid rgba(184,134,11,0.3);
-  color: var(--gold-btn); padding: 2px 8px; border-radius: 4px; font-weight: 600;
-}
-
-.ai-query-echo { font-size: 12px; color: var(--text-faint); font-style: italic; }
-
-.ai-response-body { font-size: 13.5px; color: var(--text-mid); line-height: 1.78; }
-
-.ai-loading { display: flex; align-items: center; gap: 10px; color: var(--text-faint); font-size: 13px; }
-
-.loading-dots span {
-  display: inline-block; width: 5px; height: 5px;
-  border-radius: 50%; background: var(--gold);
-  animation: blink 1.2s infinite; margin: 0 2px;
-}
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
-
-.source-tags {
-  margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px;
-  border-top: 1px solid var(--border-light); padding-top: 12px;
-}
-
-.source-tag {
-  font-size: 11px; padding: 3px 9px; border-radius: 4px;
-  background: rgba(46,90,122,0.07); border: 1px solid rgba(46,90,122,0.18); color: var(--info);
-}
-
-.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-
-.section-title { font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
-
-.section-link { font-size: 11px; color: var(--gold); cursor: pointer; }
-.section-link:hover { color: var(--gold-btn); }
-
-.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; margin-bottom: 28px; }
-
-.doc-card {
-  background: var(--cream-card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.15s;
-}
-.doc-card:hover { border-color: var(--gold-muted); }
-
-.doc-card-type {
-  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text-faint); font-weight: 600; margin-bottom: 7px;
-  display: flex; align-items: center; gap: 6px;
-}
-
-.doc-type-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-.doc-card-title { font-size: 13px; color: var(--text); margin-bottom: 7px; line-height: 1.4; }
-.doc-card-meta { font-size: 11px; color: var(--text-faint); display: flex; gap: 10px; }
-
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
-
-.stat-card { background: var(--cream-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-
-.stat-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; font-weight: 600; }
-
-.stat-value { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--text); line-height: 1; }
-
-.stat-delta { font-size: 11px; margin-top: 5px; }
-.delta-up { color: var(--success); }
-
-.report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-
-.report-table th {
-  text-align: left; padding: 8px 14px;
-  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text-faint); border-bottom: 1px solid var(--border); font-weight: 600;
-}
-
-.report-table td {
-  padding: 11px 14px; border-bottom: 1px solid var(--border-light);
-  color: var(--text-muted); vertical-align: middle;
-}
-.report-table tr:last-child td { border-bottom: none; }
-.report-table tr:hover td { background: rgba(184,134,11,0.03); }
-.report-table td:first-child { color: var(--text); }
-
-.status-pill {
-  display: inline-block; padding: 2px 8px; border-radius: 4px;
-  font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 600;
-}
-.status-open   { background: rgba(74,124,89,0.1);  color: var(--success); border: 1px solid rgba(74,124,89,0.25); }
-.status-review { background: rgba(158,109,20,0.1); color: var(--warning); border: 1px solid rgba(158,109,20,0.25); }
-.status-closed { background: rgba(122,114,96,0.1); color: var(--text-faint); border: 1px solid var(--border); }
-.status-urgent { background: rgba(139,58,46,0.1);  color: var(--danger);  border: 1px solid rgba(139,58,46,0.25); }
-
-.priority-bar { display: flex; align-items: center; gap: 8px; }
-.priority-track { width: 56px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
-.priority-fill  { height: 100%; border-radius: 2px; }
-
-.agency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-
-.agency-card { background: var(--cream-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-
-.agency-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-
-.agency-icon {
-  width: 36px; height: 36px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; flex-shrink: 0;
-}
-
-.agency-card-name { font-size: 13px; color: var(--text); font-weight: 600; }
-.agency-card-dept { font-size: 11px; color: var(--text-faint); }
-.agency-metrics { display: flex; gap: 20px; }
-.agency-metric-val { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); }
-.agency-metric-lbl { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
-
-.thread-list { display: flex; flex-direction: column; gap: 8px; }
-
-.thread-item {
-  background: var(--cream-card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 14px 16px;
-  display: flex; align-items: flex-start; gap: 14px;
-  cursor: pointer; transition: border-color 0.15s;
-}
-.thread-item:hover { border-color: var(--gold-muted); }
-
-.thread-agencies { display: flex; flex-direction: column; gap: 3px; min-width: 76px; }
-
-.thread-agency-tag { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; text-align: center; letter-spacing: 0.06em; }
-
-.thread-body { flex: 1; }
-.thread-title { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 3px; }
-.thread-preview { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-.thread-meta { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 10px; margin-top: 7px; }
-
-.thread-unread { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; margin-top: 5px; }
-
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-@keyframes fadeSlide { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-.animate-in { animation: fadeSlide 0.22s ease forwards; }
+html,body{height:100%;background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(184,134,11,0.18) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;z-index:0}
+.app{display:flex;height:100vh;position:relative;z-index:1}
+
+/* Sidebar */
+.sidebar{width:230px;min-width:230px;background:rgba(240,235,224,0.97);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.logo-area{padding:22px 20px 18px;border-bottom:1px solid var(--border-light)}
+.logo{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+.logo-icon{width:26px;height:26px;flex-shrink:0}
+.logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text)}
+.logo-tagline{font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;padding-left:35px;font-weight:500}
+.nav{padding:14px 0;flex:1;overflow-y:auto}
+.nav-section-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);padding:12px 20px 5px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 20px;cursor:pointer;color:var(--text-muted);font-size:13px;border-left:2px solid transparent;transition:all .15s;user-select:none}
+.nav-item:hover{color:var(--text);background:rgba(184,134,11,0.06)}
+.nav-item.active{color:var(--gold-btn);background:rgba(184,134,11,0.09);border-left-color:var(--gold)}
+.nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--cream-dark);color:var(--text-muted);font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid var(--border-light)}
+.nav-badge.alert{background:rgba(139,58,46,0.1);color:var(--danger);border-color:rgba(139,58,46,0.2)}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--border-light)}
+.agency-badge{display:flex;align-items:center;gap:9px}
+.agency-avatar{width:30px;height:30px;border-radius:50%;background:rgba(184,134,11,0.1);border:1px solid var(--gold-pale);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--gold-btn);flex-shrink:0}
+.agency-name{font-size:12px;color:var(--text-mid);font-weight:500}
+.agency-role{font-size:10px;color:var(--text-faint)}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;border-bottom:1px solid var(--border);background:rgba(240,235,224,0.9);display:flex;align-items:center;padding:0 28px;gap:14px;flex-shrink:0}
+.topbar-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text)}
+.topbar-meta{font-size:12px;color:var(--text-faint)}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;margin-right:6px}
+.btn{padding:6px 14px;border-radius:6px;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;border:1px solid;font-weight:500}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text-muted)}
+.btn-ghost:hover{color:var(--text);background:rgba(184,134,11,0.05)}
+.btn-gold{background:var(--gold-btn);border-color:var(--gold-btn);color:#fff}
+.btn-gold:hover{background:var(--gold);border-color:var(--gold)}
+.content{flex:1;overflow-y:auto;padding:28px}
+.panel{display:none}
+.panel.active{display:block}
+
+/* KB search area */
+.kb-search-area{background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:22px 24px;margin-bottom:24px}
+.kb-search-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px;font-weight:600}
+.question-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.q-btn{text-align:left;padding:11px 14px;background:var(--cream);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text-mid);line-height:1.4}
+.q-btn:hover{border-color:var(--gold-muted);color:var(--gold-btn);background:rgba(184,134,11,0.04)}
+.q-btn.selected{border-color:var(--gold);background:rgba(184,134,11,0.08);color:var(--gold-btn)}
+.q-num{display:block;font-size:10px;color:var(--text-faint);margin-bottom:3px;font-weight:600;letter-spacing:.08em}
+.ask-btn{width:100%;padding:11px;background:var(--gold-btn);border:none;border-radius:6px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+.ask-btn:hover{background:var(--gold)}
+.ask-btn:disabled{background:var(--text-faint);cursor:not-allowed}
+
+/* AI response */
+.ai-response{background:var(--cream-card);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:20px 24px;margin-bottom:22px;display:none}
+.ai-response.visible{display:block}
+.ai-response-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ai-chip{font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:rgba(184,134,11,0.1);border:1px solid rgba(184,134,11,0.3);color:var(--gold-btn);padding:2px 8px;border-radius:4px;font-weight:600}
+.ai-query-echo{font-size:12px;color:var(--text-faint);font-style:italic}
+.ai-body{font-size:13.5px;color:var(--text-mid);line-height:1.78}
+.ai-body p{margin-bottom:10px}
+.ai-body p:last-child{margin-bottom:0}
+.ai-loading{display:flex;align-items:center;gap:10px;color:var(--text-faint);font-size:13px}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 1.2s infinite;margin:0 2px}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.source-tags{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--border-light);padding-top:12px}
+.source-tag{font-size:11px;padding:3px 9px;border-radius:4px;background:rgba(46,90,122,0.07);border:1px solid rgba(46,90,122,0.18);color:var(--info)}
+
+/* Doc grid */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--text-faint);font-weight:600}
+.section-link{font-size:11px;color:var(--gold);cursor:pointer}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-bottom:28px}
+.doc-card{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;transition:all .15s}
+.doc-card:hover{border-color:var(--gold-muted)}
+.doc-type{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.doc-title{font-size:13px;color:var(--text);margin-bottom:7px;line-height:1.4}
+.doc-meta{font-size:11px;color:var(--text-faint);display:flex;gap:10px}
+
+/* Reports */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.stat-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;font-weight:600}
+.stat-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--text);line-height:1}
+.stat-delta{font-size:11px;margin-top:5px}
+.delta-up{color:var(--success)}
+.report-table{width:100%;border-collapse:collapse;font-size:13px}
+.report-table th{text-align:left;padding:8px 14px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);border-bottom:1px solid var(--border);font-weight:600}
+.report-table td{padding:11px 14px;border-bottom:1px solid var(--border-light);color:var(--text-muted);vertical-align:middle}
+.report-table tr:last-child td{border-bottom:none}
+.report-table tr:hover td{background:rgba(184,134,11,0.03)}
+.report-table td:first-child{color:var(--text)}
+.pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:600}
+.p-open{background:rgba(74,124,89,0.1);color:var(--success);border:1px solid rgba(74,124,89,0.25)}
+.p-review{background:rgba(158,109,20,0.1);color:var(--warning);border:1px solid rgba(158,109,20,0.25)}
+.p-closed{background:rgba(122,114,96,0.1);color:var(--text-faint);border:1px solid var(--border)}
+.p-urgent{background:rgba(139,58,46,0.1);color:var(--danger);border:1px solid rgba(139,58,46,0.25)}
+.pbar{display:flex;align-items:center;gap:8px}
+.ptrack{width:56px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.pfill{height:100%;border-radius:2px}
+
+/* Coordination */
+.agency-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.agency-card{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.ac-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ac-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ac-name{font-size:13px;color:var(--text);font-weight:600}
+.ac-dept{font-size:11px;color:var(--text-faint)}
+.ac-metrics{display:flex;gap:20px}
+.ac-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text)}
+.ac-lbl{font-size:10px;color:var(--text-faint);margin-top:1px}
+.thread-list{display:flex;flex-direction:column;gap:8px}
+.thread{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;cursor:pointer;transition:border-color .15s}
+.thread:hover{border-color:var(--gold-muted)}
+.t-agencies{display:flex;flex-direction:column;gap:3px;min-width:76px}
+.t-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;text-align:center;letter-spacing:.06em}
+.t-body{flex:1}
+.t-title{font-size:13px;color:var(--text);font-weight:500;margin-bottom:3px}
+.t-preview{font-size:12px;color:var(--text-muted);line-height:1.5}
+.t-meta{font-size:11px;color:var(--text-faint);display:flex;align-items:center;gap:10px;margin-top:7px}
+.t-unread{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeSlide .22s ease forwards}
 </style>
 </head>
 <body>
@@ -402,46 +161,22 @@ body::before {
       </div>
       <div class="logo-tagline">Capitol Intelligence</div>
     </div>
-
     <nav class="nav">
       <div class="nav-section-label">Knowledge</div>
-      <div class="nav-item active" onclick="switchPanel('kb',this)">
-        <span class="nav-icon">◈</span> Knowledge Base
-        <span class="nav-badge">1,204</span>
-      </div>
-      <div class="nav-item" onclick="switchPanel('search',this)">
-        <span class="nav-icon">⊹</span> Semantic Search
-      </div>
-
+      <div class="nav-item active" onclick="switchPanel('kb',this)"><span class="nav-icon">◈</span> Knowledge Base<span class="nav-badge">1,204</span></div>
+      <div class="nav-item" onclick="switchPanel('search',this)"><span class="nav-icon">⊹</span> Semantic Search</div>
       <div class="nav-section-label">Operations</div>
-      <div class="nav-item" onclick="switchPanel('reports',this)">
-        <span class="nav-icon">≡</span> Reports
-        <span class="nav-badge alert">3</span>
-      </div>
-      <div class="nav-item" onclick="switchPanel('coord',this)">
-        <span class="nav-icon">⟐</span> Coordination
-        <span class="nav-badge">12</span>
-      </div>
-      <div class="nav-item" onclick="switchPanel('kb',this)">
-        <span class="nav-icon">◫</span> Compliance
-      </div>
-
+      <div class="nav-item" onclick="switchPanel('reports',this)"><span class="nav-icon">≡</span> Reports<span class="nav-badge alert">3</span></div>
+      <div class="nav-item" onclick="switchPanel('coord',this)"><span class="nav-icon">⟐</span> Coordination<span class="nav-badge">12</span></div>
+      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">◫</span> Compliance</div>
       <div class="nav-section-label">System</div>
-      <div class="nav-item" onclick="switchPanel('kb',this)">
-        <span class="nav-icon">◌</span> Audit Trail
-      </div>
-      <div class="nav-item" onclick="switchPanel('kb',this)">
-        <span class="nav-icon">⊡</span> Settings
-      </div>
+      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">◌</span> Audit Trail</div>
+      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">⊡</span> Settings</div>
     </nav>
-
     <div class="sidebar-footer">
       <div class="agency-badge">
-        <div class="agency-avatar">EPA</div>
-        <div>
-          <div class="agency-name">J. Reyes</div>
-          <div class="agency-role">Regional Director</div>
-        </div>
+        <div class="agency-avatar">TX-3</div>
+        <div><div class="agency-name">M. Harrison</div><div class="agency-role">Chief of Staff</div></div>
       </div>
     </div>
   </aside>
@@ -451,9 +186,7 @@ body::before {
       <span class="topbar-title" id="topbar-title">Knowledge Base</span>
       <span class="topbar-meta" id="topbar-meta">1,204 documents · Last indexed 4 min ago</span>
       <div class="topbar-actions">
-        <span style="font-size:12px;color:var(--text-faint);">
-          <span class="status-dot"></span>All systems operational
-        </span>
+        <span style="font-size:12px;color:var(--text-faint)"><span class="status-dot"></span>All systems operational</span>
         <button class="btn btn-ghost">Export</button>
         <button class="btn btn-gold">+ New Report</button>
       </div>
@@ -461,272 +194,95 @@ body::before {
 
     <div class="content">
 
-      <!-- Knowledge Base -->
+      <!-- KB Panel -->
       <div class="panel active" id="panel-kb">
         <div class="kb-search-area">
-          <div class="kb-search-label">Query the knowledge base with natural language</div>
-          <div class="search-input-row">
-            <textarea class="search-input" id="kb-query" rows="1"
-              placeholder="e.g. What are the notification requirements for hazardous waste disposal under RCRA?"
-              oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
-            <button class="search-btn" id="search-btn" onclick="runQuery()">Query →</button>
-          </div>
-          <div class="quick-queries">
-            <div class="qq-pill" onclick="setQuery(this)">FEMA flood zone reclassification procedures</div>
-            <div class="qq-pill" onclick="setQuery(this)">Title VI environmental justice requirements</div>
-            <div class="qq-pill" onclick="setQuery(this)">Cross-agency data sharing under FISMA</div>
-            <div class="qq-pill" onclick="setQuery(this)">CAA Section 112 HAP emission standards</div>
-          </div>
+          <div class="kb-search-label">Select a question to query the knowledge base</div>
+          <div class="question-grid" id="qgrid-kb"></div>
+          <button class="ask-btn" id="ask-btn-kb" onclick="runMock('kb')" disabled>Select a question above to query</button>
         </div>
-
-        <div class="ai-response" id="ai-response">
+        <div class="ai-response" id="ai-resp-kb">
           <div class="ai-response-header">
             <span class="ai-chip">Ordinance AI</span>
-            <span class="ai-query-echo" id="ai-query-echo"></span>
+            <span class="ai-query-echo" id="echo-kb"></span>
           </div>
-          <div class="ai-response-body" id="ai-response-body">
-            <div class="ai-loading"><div class="loading-dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>
-          </div>
-          <div class="source-tags" id="source-tags" style="display:none;"></div>
+          <div class="ai-body" id="body-kb"></div>
+          <div class="source-tags" id="tags-kb"></div>
         </div>
-
         <div class="section-header">
           <span class="section-title">Recent Documents</span>
           <span class="section-link">Browse all →</span>
         </div>
-
         <div class="doc-grid">
-          <div class="doc-card">
-            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--info)"></div>Federal Register</div>
-            <div class="doc-card-title">Revised Air Quality Index Thresholds for PM2.5 (Final Rule)</div>
-            <div class="doc-card-meta"><span>EPA-HQ-OAR-2024-0041</span><span>Mar 14, 2025</span></div>
-          </div>
-          <div class="doc-card">
-            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--gold)"></div>Executive Order</div>
-            <div class="doc-card-title">EO 14168 — Strengthening Critical Infrastructure Resilience</div>
-            <div class="doc-card-meta"><span>White House</span><span>Jan 20, 2025</span></div>
-          </div>
-          <div class="doc-card">
-            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--success)"></div>Guidance Memo</div>
-            <div class="doc-card-title">Interagency Permitting Coordination Under NEPA Reform Act</div>
-            <div class="doc-card-meta"><span>CEQ-2025-GM-003</span><span>Feb 28, 2025</span></div>
-          </div>
-          <div class="doc-card">
-            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--danger)"></div>Emergency Directive</div>
-            <div class="doc-card-title">CISA ED 25-02: Mitigation of Critical Vulnerability in ICS Systems</div>
-            <div class="doc-card-meta"><span>CISA</span><span>Apr 3, 2025</span></div>
-          </div>
-          <div class="doc-card">
-            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--info)"></div>Federal Register</div>
-            <div class="doc-card-title">Proposed Rule: Drinking Water Standards for PFAS Compounds</div>
-            <div class="doc-card-meta"><span>EPA-HQ-OW-2025-0011</span><span>Apr 18, 2025</span></div>
-          </div>
-          <div class="doc-card">
-            <div class="doc-card-type"><div class="doc-type-dot" style="background:#7a5c9e"></div>OMB Circular</div>
-            <div class="doc-card-title">A-123 Update: Enterprise Risk Management Framework Rev. 4</div>
-            <div class="doc-card-meta"><span>OMB M-25-09</span><span>Mar 30, 2025</span></div>
-          </div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--info)"></div>Congressional Record</div><div class="doc-title">Floor Debate Transcript — H.R. 2847 Infrastructure Reauthorization</div><div class="doc-meta"><span>119th Congress</span><span>Apr 29, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--gold)"></div>Committee Report</div><div class="doc-title">House Appropriations Subcommittee Markup — FY2026 Labor-HHS</div><div class="doc-meta"><span>HAC-LH-2025-04</span><span>Apr 22, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--success)"></div>CRS Report</div><div class="doc-title">The Federal Budget Process: A Brief Overview</div><div class="doc-meta"><span>R46240</span><span>Mar 10, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--danger)"></div>Ethics Guidance</div><div class="doc-title">House Ethics Manual 2025 — Staff Gift & Travel Rules</div><div class="doc-meta"><span>HOE-2025-01</span><span>Jan 15, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--info)"></div>CRS Report</div><div class="doc-title">Discharge Petitions and the Legislative Process</div><div class="doc-meta"><span>RS20301</span><span>Feb 3, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--warning)"></div>Member Guidance</div><div class="doc-title">Office Operations Handbook — 119th Congress Edition</div><div class="doc-meta"><span>CAO-OPS-2025</span><span>Jan 6, 2025</span></div></div>
         </div>
       </div>
 
-      <!-- Semantic Search -->
+      <!-- Search Panel -->
       <div class="panel" id="panel-search">
         <div class="kb-search-area">
-          <div class="kb-search-label">Ask anything about government regulations and procedures</div>
-          <div class="search-input-row">
-            <textarea class="search-input" id="kb-query-2" rows="1"
-              placeholder="e.g. What notice period is required before a public hearing on a state implementation plan revision?"
-              oninput="autoResize(this)" onkeydown="handleEnter2(event)"></textarea>
-            <button class="search-btn" id="search-btn-2" onclick="runQuery2()">Query →</button>
-          </div>
-          <div class="quick-queries">
-            <div class="qq-pill" onclick="setQuery2(this)">Interagency consultation timelines under ESA</div>
-            <div class="qq-pill" onclick="setQuery2(this)">NEPA categorical exclusion criteria</div>
-            <div class="qq-pill" onclick="setQuery2(this)">Superfund NCP public comment requirements</div>
-          </div>
+          <div class="kb-search-label">Select a question to search across all documents</div>
+          <div class="question-grid" id="qgrid-search"></div>
+          <button class="ask-btn" id="ask-btn-search" onclick="runMock('search')" disabled>Select a question above to query</button>
         </div>
-        <div class="ai-response" id="ai-response-2">
+        <div class="ai-response" id="ai-resp-search">
           <div class="ai-response-header">
             <span class="ai-chip">Ordinance AI</span>
-            <span class="ai-query-echo" id="ai-query-echo-2"></span>
+            <span class="ai-query-echo" id="echo-search"></span>
           </div>
-          <div class="ai-response-body" id="ai-response-body-2">
-            <div class="ai-loading"><div class="loading-dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>
-          </div>
-          <div class="source-tags" id="source-tags-2" style="display:none;"></div>
+          <div class="ai-body" id="body-search"></div>
+          <div class="source-tags" id="tags-search"></div>
         </div>
       </div>
 
-      <!-- Reports -->
+      <!-- Reports Panel -->
       <div class="panel" id="panel-reports">
         <div class="stats-row">
-          <div class="stat-card">
-            <div class="stat-label">Open Reports</div>
-            <div class="stat-value">47</div>
-            <div class="stat-delta delta-up">↑ 5 this week</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Avg Resolution</div>
-            <div class="stat-value">8.2<span style="font-size:14px;color:var(--text-faint)">d</span></div>
-            <div class="stat-delta delta-up">↓ 1.4d improvement</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Agencies Involved</div>
-            <div class="stat-value">14</div>
-            <div class="stat-delta" style="color:var(--text-faint)">across 3 regions</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Compliance Rate</div>
-            <div class="stat-value">94<span style="font-size:14px;color:var(--text-faint)">%</span></div>
-            <div class="stat-delta delta-up">↑ 2.1% vs last qtr</div>
-          </div>
+          <div class="stat-card"><div class="stat-label">Open Reports</div><div class="stat-value">47</div><div class="stat-delta delta-up">↑ 5 this week</div></div>
+          <div class="stat-card"><div class="stat-label">Avg Resolution</div><div class="stat-value">8.2<span style="font-size:14px;color:var(--text-faint)">d</span></div><div class="stat-delta delta-up">↓ 1.4d improvement</div></div>
+          <div class="stat-card"><div class="stat-label">Offices Involved</div><div class="stat-value">14</div><div class="stat-delta" style="color:var(--text-faint)">across 3 caucuses</div></div>
+          <div class="stat-card"><div class="stat-label">Response Rate</div><div class="stat-value">94<span style="font-size:14px;color:var(--text-faint)">%</span></div><div class="stat-delta delta-up">↑ 2.1% vs last qtr</div></div>
         </div>
-
         <div class="section-header">
           <span class="section-title">Active Reports</span>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;">Filter</button>
-            <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;">Sort ↕</button>
-          </div>
+          <div style="display:flex;gap:8px"><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px">Filter</button><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px">Sort ↕</button></div>
         </div>
-
-        <div style="background:var(--cream-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px;">
+        <div style="background:var(--cream-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px">
           <table class="report-table">
-            <thead>
-              <tr>
-                <th>Report ID / Title</th><th>Agency</th><th>Status</th><th>Priority</th><th>Due</th><th>Assignee</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Report / Title</th><th>Office</th><th>Status</th><th>Priority</th><th>Due</th><th>Lead</th></tr></thead>
             <tbody>
-              <tr>
-                <td><div>Quarterly Air Permit Compliance Report</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0441</div></td>
-                <td>EPA Region 9</td><td><span class="status-pill status-urgent">Urgent</span></td>
-                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:90%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">9/10</span></div></td>
-                <td style="font-size:12px;">May 7</td><td>J. Reyes</td>
-              </tr>
-              <tr>
-                <td><div>PFAS Groundwater Monitoring — Site Delta</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0438</div></td>
-                <td>EPA / DoD</td><td><span class="status-pill status-review">In Review</span></td>
-                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:70%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">7/10</span></div></td>
-                <td style="font-size:12px;">May 15</td><td>M. Chen</td>
-              </tr>
-              <tr>
-                <td><div>Wetland Mitigation Bank Annual Report</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0429</div></td>
-                <td>USACE / EPA</td><td><span class="status-pill status-open">Active</span></td>
-                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:55%;background:var(--success)"></div></div><span style="font-size:11px;color:var(--success)">5/10</span></div></td>
-                <td style="font-size:12px;">May 30</td><td>T. Park</td>
-              </tr>
-              <tr>
-                <td><div>Tribal Consultation Documentation — NM Pipeline</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0421</div></td>
-                <td>BIA / FERC</td><td><span class="status-pill status-urgent">Urgent</span></td>
-                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:85%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">8/10</span></div></td>
-                <td style="font-size:12px;">May 9</td><td>A. Morales</td>
-              </tr>
-              <tr>
-                <td><div>Section 7 Consultation — ESA Salmon Habitat</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0414</div></td>
-                <td>NMFS / EPA</td><td><span class="status-pill status-review">In Review</span></td>
-                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:60%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">6/10</span></div></td>
-                <td style="font-size:12px;">Jun 1</td><td>S. Johnson</td>
-              </tr>
-              <tr>
-                <td><div>CERCLA 5-Year Review — Superfund Site 88</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0398</div></td>
-                <td>EPA OLEM</td><td><span class="status-pill status-closed">Closed</span></td>
-                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:30%;background:var(--text-faint)"></div></div><span style="font-size:11px;color:var(--text-faint)">3/10</span></div></td>
-                <td style="font-size:12px;">Apr 25 ✓</td><td>B. Williams</td>
-              </tr>
+              <tr><td><div>FY2026 Appropriations Position Memo</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0441</div></td><td>TX-03</td><td><span class="pill p-urgent">Urgent</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:90%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">9/10</span></div></td><td style="font-size:12px">May 7</td><td>M. Harrison</td></tr>
+              <tr><td><div>Constituent Correspondence Summary — Immigration</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0438</div></td><td>TX-03</td><td><span class="pill p-review">In Review</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:70%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">7/10</span></div></td><td style="font-size:12px">May 15</td><td>L. Park</td></tr>
+              <tr><td><div>Committee Hearing Prep — Energy Subcommittee</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0429</div></td><td>TX-03 / EC</td><td><span class="pill p-open">Active</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:55%;background:var(--success)"></div></div><span style="font-size:11px;color:var(--success)">5/10</span></div></td><td style="font-size:12px">May 30</td><td>T. Okafor</td></tr>
+              <tr><td><div>Floor Speech Draft — H.R. 2847 Infrastructure</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0421</div></td><td>TX-03</td><td><span class="pill p-urgent">Urgent</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:85%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">8/10</span></div></td><td style="font-size:12px">May 9</td><td>A. Cruz</td></tr>
+              <tr><td><div>Town Hall Briefing Book — May Recess</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0414</div></td><td>TX-03</td><td><span class="pill p-review">In Review</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:60%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">6/10</span></div></td><td style="font-size:12px">Jun 1</td><td>M. Harrison</td></tr>
+              <tr><td><div>Quarterly Newsletter — Spring Edition</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0398</div></td><td>TX-03</td><td><span class="pill p-closed">Closed</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:30%;background:var(--text-faint)"></div></div><span style="font-size:11px;color:var(--text-faint)">3/10</span></div></td><td style="font-size:12px">Apr 25 ✓</td><td>R. Simmons</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Coordination -->
+      <!-- Coordination Panel -->
       <div class="panel" id="panel-coord">
         <div class="agency-grid">
-          <div class="agency-card">
-            <div class="agency-card-header">
-              <div class="agency-icon" style="background:rgba(46,90,122,0.1);color:var(--info);border:1px solid rgba(46,90,122,0.2);">EPA</div>
-              <div><div class="agency-card-name">Environmental Protection</div><div class="agency-card-dept">Region 9 — Southwest</div></div>
-            </div>
-            <div class="agency-metrics">
-              <div><div class="agency-metric-val">12</div><div class="agency-metric-lbl">open items</div></div>
-              <div><div class="agency-metric-val" style="color:var(--success)">94%</div><div class="agency-metric-lbl">response rate</div></div>
-            </div>
-          </div>
-          <div class="agency-card">
-            <div class="agency-card-header">
-              <div class="agency-icon" style="background:rgba(74,124,89,0.1);color:var(--success);border:1px solid rgba(74,124,89,0.2);">DOI</div>
-              <div><div class="agency-card-name">Dept. of the Interior</div><div class="agency-card-dept">Bureau of Indian Affairs</div></div>
-            </div>
-            <div class="agency-metrics">
-              <div><div class="agency-metric-val">5</div><div class="agency-metric-lbl">open items</div></div>
-              <div><div class="agency-metric-val" style="color:var(--warning)">78%</div><div class="agency-metric-lbl">response rate</div></div>
-            </div>
-          </div>
-          <div class="agency-card">
-            <div class="agency-card-header">
-              <div class="agency-icon" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);border:1px solid rgba(184,134,11,0.2);">USACE</div>
-              <div><div class="agency-card-name">Army Corps of Engineers</div><div class="agency-card-dept">Los Angeles District</div></div>
-            </div>
-            <div class="agency-metrics">
-              <div><div class="agency-metric-val">8</div><div class="agency-metric-lbl">open items</div></div>
-              <div><div class="agency-metric-val" style="color:var(--success)">91%</div><div class="agency-metric-lbl">response rate</div></div>
-            </div>
-          </div>
+          <div class="agency-card"><div class="ac-header"><div class="ac-icon" style="background:rgba(46,90,122,0.1);color:var(--info);border:1px solid rgba(46,90,122,0.2)">TX-3</div><div><div class="ac-name">Rep. Carter's Office</div><div class="ac-dept">TX-03 · Energy Committee</div></div></div><div class="ac-metrics"><div><div class="ac-val">12</div><div class="ac-lbl">open items</div></div><div><div class="ac-val" style="color:var(--success)">94%</div><div class="ac-lbl">response rate</div></div></div></div>
+          <div class="agency-card"><div class="ac-header"><div class="ac-icon" style="background:rgba(74,124,89,0.1);color:var(--success);border:1px solid rgba(74,124,89,0.2)">TX-7</div><div><div class="ac-name">Rep. Fletcher's Office</div><div class="ac-dept">TX-07 · Appropriations</div></div></div><div class="ac-metrics"><div><div class="ac-val">5</div><div class="ac-lbl">open items</div></div><div><div class="ac-val" style="color:var(--warning)">78%</div><div class="ac-lbl">response rate</div></div></div></div>
+          <div class="agency-card"><div class="ac-header"><div class="ac-icon" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);border:1px solid rgba(184,134,11,0.2)">CBO</div><div><div class="ac-name">Cong. Budget Office</div><div class="ac-dept">Score requests · Analysis</div></div></div><div class="ac-metrics"><div><div class="ac-val">8</div><div class="ac-lbl">open items</div></div><div><div class="ac-val" style="color:var(--success)">91%</div><div class="ac-lbl">response rate</div></div></div></div>
         </div>
-
-        <div class="section-header" style="margin-bottom:12px;">
+        <div class="section-header" style="margin-bottom:12px">
           <span class="section-title">Active Coordination Threads</span>
-          <button class="btn btn-gold" style="font-size:11px;padding:5px 12px;">+ New Thread</button>
+          <button class="btn btn-gold" style="font-size:11px;padding:5px 12px">+ New Thread</button>
         </div>
-
         <div class="thread-list">
-          <div class="thread-item">
-            <div class="thread-unread"></div>
-            <div class="thread-agencies">
-              <div class="thread-agency-tag" style="background:rgba(46,90,122,0.1);color:var(--info);">EPA</div>
-              <div class="thread-agency-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);">USACE</div>
-            </div>
-            <div class="thread-body">
-              <div class="thread-title">Section 404 / Section 401 Joint Review — Rillito Wetland Restoration</div>
-              <div class="thread-preview">USACE requested EPA water quality cert. EPA Region 9 flagged potential ESA Section 7 trigger — awaiting NMFS consultation status from DoI liaison before proceeding.</div>
-              <div class="thread-meta"><span class="status-pill status-review">In Review</span><span>14 messages</span><span>2h ago</span></div>
-            </div>
-          </div>
-          <div class="thread-item">
-            <div class="thread-unread"></div>
-            <div class="thread-agencies">
-              <div class="thread-agency-tag" style="background:rgba(46,90,122,0.1);color:var(--info);">EPA</div>
-              <div class="thread-agency-tag" style="background:rgba(74,124,89,0.1);color:var(--success);">DOI</div>
-              <div class="thread-agency-tag" style="background:rgba(122,92,158,0.1);color:#7a5c9e;">FERC</div>
-            </div>
-            <div class="thread-body">
-              <div class="thread-title">NM Pipeline Project — Tribal Consultation & Environmental Review</div>
-              <div class="thread-preview">Three-agency coordination on NHPA Section 106, NEPA EIS, and tribal consultation timelines. BIA lead has requested 30-day extension for sovereign nation review period.</div>
-              <div class="thread-meta"><span class="status-pill status-urgent">Urgent</span><span>31 messages</span><span>45m ago</span></div>
-            </div>
-          </div>
-          <div class="thread-item">
-            <div class="thread-agencies">
-              <div class="thread-agency-tag" style="background:rgba(46,90,122,0.1);color:var(--info);">EPA</div>
-              <div class="thread-agency-tag" style="background:rgba(139,58,46,0.1);color:var(--danger);">DoD</div>
-            </div>
-            <div class="thread-body">
-              <div class="thread-title">PFAS Remediation Cost-Share Agreement — Tucson AFB Adjacent Sites</div>
-              <div class="thread-preview">EPA and DoD resolving cost allocation under CERCLA for PFAS plume originating at Air Force installation. Draft MOA under legal review at both agencies.</div>
-              <div class="thread-meta"><span class="status-pill status-open">Active</span><span>22 messages</span><span>yesterday</span></div>
-            </div>
-          </div>
-          <div class="thread-item">
-            <div class="thread-agencies">
-              <div class="thread-agency-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);">USACE</div>
-              <div class="thread-agency-tag" style="background:rgba(74,124,89,0.1);color:var(--success);">NMFS</div>
-            </div>
-            <div class="thread-body">
-              <div class="thread-title">Biological Opinion — Yuma Irrigation District Diversion Structure</div>
-              <div class="thread-preview">BiOp issued with Reasonable and Prudent Alternatives. USACE confirming Section 404 permit conditions align with NMFS RPAs. Final coordination memo due May 20.</div>
-              <div class="thread-meta"><span class="status-pill status-review">In Review</span><span>9 messages</span><span>3 days ago</span></div>
-            </div>
-          </div>
+          <div class="thread"><div class="t-unread"></div><div class="t-agencies"><div class="t-tag" style="background:rgba(46,90,122,0.1);color:var(--info)">TX-03</div><div class="t-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn)">TX-07</div></div><div class="t-body"><div class="t-title">Joint Cosponsor Request — H.R. 2847 Infrastructure Reauthorization</div><div class="t-preview">TX-07 reviewing the bill text and CBO preliminary score. Waiting on whip count from leadership before committing to cosponsor. Expected response by EOD Friday.</div><div class="t-meta"><span class="pill p-review">In Review</span><span>14 messages</span><span>2h ago</span></div></div></div>
+          <div class="thread"><div class="t-unread"></div><div class="t-agencies"><div class="t-tag" style="background:rgba(46,90,122,0.1);color:var(--info)">TX-03</div><div class="t-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn)">CBO</div><div class="t-tag" style="background:rgba(122,92,158,0.1);color:#7a5c9e">JCT</div></div><div class="t-body"><div class="t-title">FY2026 Budget Amendment — CBO Score Request</div><div class="t-preview">CBO preliminary score requested for proposed spending offset amendment. Joint Committee on Taxation reviewing revenue impact of the refundable tax credit provision.</div><div class="t-meta"><span class="pill p-urgent">Urgent</span><span>31 messages</span><span>45m ago</span></div></div></div>
+          <div class="thread"><div class="t-agencies"><div class="t-tag" style="background:rgba(46,90,122,0.1);color:var(--info)">TX-03</div><div class="t-tag" style="background:rgba(139,58,46,0.1);color:var(--danger)">OMB</div></div><div class="t-body"><div class="t-title">Constituent Casework — Federal Grant Delay Review</div><div class="t-preview">OMB reviewing administrative hold on EPA grant awarded to Beaumont clean water project. Congressional liaison flagged for expedited review after constituent outreach.</div><div class="t-meta"><span class="pill p-open">Active</span><span>22 messages</span><span>yesterday</span></div></div></div>
+          <div class="thread"><div class="t-agencies"><div class="t-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn)">TX-07</div><div class="t-tag" style="background:rgba(74,124,89,0.1);color:var(--success)">CRS</div></div><div class="t-body"><div class="t-title">Research Request — Comparative Grid Modernization Policy</div><div class="t-preview">CRS preparing analysis of state-level grid resilience legislation for Energy Subcommittee hearing prep. Delivery expected May 12.</div><div class="t-meta"><span class="pill p-review">In Review</span><span>9 messages</span><span>3 days ago</span></div></div></div>
         </div>
       </div>
 
@@ -735,85 +291,123 @@ body::before {
 </div>
 
 <script>
-function switchPanel(id, navEl) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('panel-' + id).classList.add('active');
-  navEl.classList.add('active');
-  const titles = {
-    kb:      ['Knowledge Base',           '1,204 documents · Last indexed 4 min ago'],
-    search:  ['Semantic Search',          'AI-powered search across all indexed documents'],
-    reports: ['Reports',                  '47 open · 3 urgent'],
-    coord:   ['Inter-Agency Coordination','4 active threads across 6 agencies']
-  };
-  const t = titles[id] || ['Ordinance', ''];
-  document.getElementById('topbar-title').textContent = t[0];
-  document.getElementById('topbar-meta').textContent = t[1];
-}
+var QUESTIONS = [
+  {
+    q: "How do I introduce a bill in the House?",
+    a: "To introduce legislation in the House of Representatives, a Member simply drops a printed copy of the bill into the hopper — a wooden box located near the House floor — while Congress is in session. The Member must be present on the House floor or in the chamber during a session day to do so. No co-sponsors or committee support are required at the point of introduction.\n\nOnce introduced, the bill is assigned a number (H.R. for House bills, H.J.Res. for joint resolutions, H.Con.Res. for concurrent resolutions, and H.Res. for simple resolutions) and referred by the Speaker, in consultation with the Parliamentarian, to the appropriate committee or committees of jurisdiction. The referral decision is guided by House Rule XII and the standing rules of each committee.\n\nFollowing referral, the committee may hold hearings, mark up the legislation, or take no action at all. The vast majority of introduced bills — typically over 95% — never advance beyond committee. Members wishing to accelerate consideration may seek inclusion in a larger package, request suspension of the rules (which requires a two-thirds majority), or, in rare cases, pursue a discharge petition under House Rule XV.",
+    sources: ["House Rule XII, Cl. 2", "House Rule XV (Discharge Petitions)", "CRS Report R42843", "House Practice: A Guide to the Rules, Precedents and Procedures of the House"]
+  },
+  {
+    q: "What are the gift rules for congressional staff?",
+    a: "Under the House Ethics Rules and the Ethics in Government Act, House staff are generally prohibited from accepting gifts valued at more than $50 from a single source in a calendar year, with an aggregate annual cap of $100 from any one source. A gift is broadly defined as anything of value, including meals, entertainment, travel, and tangible items.\n\nKey exceptions include gifts from personal friends (where the relationship predates employment and the gift is not related to the giver's lobbying or business interests), items of nominal value under $10, and informational materials such as books or reports provided in connection with official duties. Widely attended events, officially connected travel, and constituent gifts under certain conditions may also qualify for specific exemptions.\n\nLobbying disclosure rules add a further layer: registered lobbyists and lobbying organizations are prohibited from providing any gift, including meals, to Members or staff — regardless of value — under the Honest Leadership and Open Government Act of 2007 (HLOGA). Staff receiving prohibited gifts must return or reimburse them promptly. The House Ethics Committee should be consulted for any ambiguous situation, and its annual guidance memos are indexed in the Ordinance knowledge base.",
+    sources: ["House Ethics Manual 2025, Ch. 4", "5 U.S.C. § 7353", "HLOGA (P.L. 110-81)", "HOE Advisory Opinion 2024-03"]
+  },
+  {
+    q: "How does the appropriations process work?",
+    a: "The federal appropriations process is the annual legislative mechanism by which Congress funds discretionary government operations. It begins with the President's budget request, submitted to Congress by the first Monday in February under 31 U.S.C. § 1105. The House and Senate Budget Committees then establish a concurrent budget resolution setting overall spending levels, though this resolution is not signed by the President and does not have the force of law.\n\nThe House Appropriations Committee, divided into 12 subcommittees mirroring the 12 annual appropriations bills, holds hearings and marks up spending bills beginning in the spring. Full committee approval is followed by floor consideration under rules established by the Rules Committee. The Senate follows a parallel process. Differences between chambers are resolved in conference or through an exchange of amendments.\n\nIf the full appropriations process is not completed before the start of the fiscal year on October 1, Congress passes a continuing resolution (CR) to maintain funding at existing levels. When no CR or omnibus is enacted, a government shutdown results. In recent Congresses, final appropriations have routinely been enacted months into the fiscal year, often via omnibus packages combining all 12 bills.",
+    sources: ["CRS Report R42388", "31 U.S.C. § 1105", "House Rule X (Committee Jurisdiction)", "House Appropriations Committee Operating Guidelines FY2026"]
+  },
+  {
+    q: "What is a discharge petition and when is it used?",
+    a: "A discharge petition is a procedural tool under House Rule XV that allows a majority of the House — 218 Members — to bring a bill or resolution directly to the floor without going through the committee process. It is used when the majority leadership declines to schedule legislation for floor consideration and supporters believe they can assemble the votes to bypass committee.\n\nTo initiate a discharge petition, a Member files a motion to discharge a committee from further consideration of a bill that has been referred to that committee for at least 30 legislative days, or a rule from the Rules Committee that has been pending for at least seven legislative days. The petition is then placed in the hopper and Members may sign it on any day the House is in session. Signatures are publicly disclosed on the Clerk's website once seven legislative days have passed from filing.\n\nSuccessful discharge petitions are rare — fewer than two dozen have succeeded since 1910. The process is politically costly, as Members who sign against their party leadership face consequences. Notable recent uses include the 2015 Export-Import Bank reauthorization and periodic attempts related to immigration legislation. Ordinance tracks active discharge petitions and notifies relevant staff when signature thresholds approach.",
+    sources: ["House Rule XV", "CRS Report RS20301", "House Clerk Discharge Petition Records", "Riddick's Senate Procedure (for Senate analog)"]
+  },
+  {
+    q: "How do I request a Congressional Research Service report?",
+    a: "Congressional Research Service (CRS) reports and research are available exclusively to Members of Congress, their staff, and committees — CRS does not accept requests directly from the public. Staff may request CRS products through the CRS website (crs.gov), accessible via the House intranet, or by contacting a CRS analyst directly by phone or email.\n\nRequests can be for existing reports (which are catalogued and searchable on crs.gov), custom research memos tailored to a specific legislative question, or briefings where a CRS analyst presents findings in person or by call. Turnaround time depends on the complexity of the request and analyst availability; straightforward requests are typically fulfilled within one to three business days, while custom analysis may take one to two weeks.\n\nCRS operates under a policy of confidentiality — the agency does not disclose which offices have requested what research. However, since 2018 CRS has publicly released most of its general distribution reports on its public website (crsreports.congress.gov). Sensitive or Member-specific research products remain confidential. Ordinance indexes all publicly available CRS reports and can surface relevant existing research before staff submit a new request, reducing duplication and turnaround time.",
+    sources: ["CRS Operating Principles (2024)", "P.L. 91-510 (Legislative Reorganization Act of 1970)", "crsreports.congress.gov", "CAO Research & Reference Resources Guide"]
+  },
+  {
+    q: "What happens during a government shutdown?",
+    a: "A government shutdown occurs when Congress fails to enact full-year appropriations legislation or a continuing resolution before the start of the fiscal year (October 1) or before a prior CR expires. The legal basis is the Antideficiency Act (31 U.S.C. § 1341), which prohibits federal agencies from obligating funds in excess of available appropriations. When no appropriation is in place, agencies must cease non-essential operations.\n\nDuring a shutdown, agencies implement contingency plans that distinguish between 'essential' employees who continue working (though without pay until an appropriation is enacted) and 'non-essential' employees who are furloughed. Essential functions include national security, law enforcement, air traffic control, emergency medical care, and activities funded through multi-year or permanent appropriations. Social Security payments, Medicare, and Medicaid continue because they are funded through mandatory spending, not annual appropriations.\n\nFor congressional offices, operations continue throughout a shutdown because legislative branch appropriations are typically handled separately and Members' salaries are constitutionally protected. However, staff in agencies with which offices routinely coordinate — including OMB, agency legislative affairs offices, and executive branch liaisons — may be unavailable. Shutdowns have ranged from a single day to 35 days (December 2018 – January 2019). Back pay for furloughed employees has historically been authorized by Congress after each shutdown.",
+    sources: ["31 U.S.C. § 1341 (Antideficiency Act)", "OMB Circular A-11, Appendix C", "CRS Report RL34680", "GAO Principles of Federal Appropriations Law (Red Book)"]
+  }
+];
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
+var selectedIdx = { kb: -1, search: -1 };
 
-function handleEnter(e)  { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();runQuery();} }
-function handleEnter2(e) { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();runQuery2();} }
-function setQuery(el)  { const q=document.getElementById('kb-query');  q.value=el.textContent; autoResize(q); }
-function setQuery2(el) { const q=document.getElementById('kb-query-2'); q.value=el.textContent; autoResize(q); }
-
-async function runQueryCore(queryId,btnId,responseId,echoId,bodyId,tagsId) {
-  const query = document.getElementById(queryId).value.trim();
-  if (!query) return;
-
-  const btn=document.getElementById(btnId), responseEl=document.getElementById(responseId),
-    echoEl=document.getElementById(echoId), bodyEl=document.getElementById(bodyId),
-    tagsEl=document.getElementById(tagsId);
-
-  btn.disabled=true; btn.textContent='Querying…';
-  echoEl.textContent='"'+query+'"';
-  bodyEl.innerHTML='<div class="ai-loading"><div class="loading-dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>';
-  tagsEl.style.display='none'; tagsEl.innerHTML='';
-  responseEl.classList.add('visible','animate-in');
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:`You are the Ordinance AI — an expert government intelligence assistant with deep knowledge of U.S. federal regulations, congressional procedures, environmental law, interagency coordination, permitting, and compliance. Answer questions concisely and authoritatively, citing specific regulatory references (CFR sections, USC titles, agency guidance, executive orders) where relevant. Write 2–4 clear paragraphs under 250 words total. End with a line starting "SOURCES:" listing 2–4 specific source document identifiers. No markdown formatting.`,
-        messages:[{role:'user',content:query}]
-      })
+function buildGrids() {
+  ['kb','search'].forEach(function(panel) {
+    var grid = document.getElementById('qgrid-' + panel);
+    QUESTIONS.forEach(function(item, i) {
+      var btn = document.createElement('button');
+      btn.className = 'q-btn';
+      btn.innerHTML = '<span class="q-num">Q' + (i+1) + '</span>' + item.q;
+      btn.onclick = function() { selectQuestion(panel, i); };
+      grid.appendChild(btn);
     });
-    const data=await res.json();
-    const text=data.content?.[0]?.text||'No response received.';
-    const parts=text.split(/\nSOURCES:/i);
-    const answer=parts[0].trim(), sourcesRaw=parts[1]?parts[1].trim():'';
+  });
+}
 
-    bodyEl.innerHTML='';
-    answer.split('\n\n').forEach(para=>{
-      if(para.trim()){
-        const p=document.createElement('p');
-        p.style.marginBottom='10px'; p.textContent=para.trim();
+function selectQuestion(panel, idx) {
+  selectedIdx[panel] = idx;
+  var grid = document.getElementById('qgrid-' + panel);
+  var btns = grid.querySelectorAll('.q-btn');
+  btns.forEach(function(b, i) {
+    b.classList.toggle('selected', i === idx);
+  });
+  var askBtn = document.getElementById('ask-btn-' + panel);
+  askBtn.textContent = 'Ask: "' + QUESTIONS[idx].q + '"';
+  askBtn.disabled = false;
+}
+
+function runMock(panel) {
+  var idx = selectedIdx[panel];
+  if (idx < 0) return;
+  var item = QUESTIONS[idx];
+
+  var respEl = document.getElementById('ai-resp-' + panel);
+  var echoEl = document.getElementById('echo-' + panel);
+  var bodyEl = document.getElementById('body-' + panel);
+  var tagsEl = document.getElementById('tags-' + panel);
+  var askBtn = document.getElementById('ask-btn-' + panel);
+
+  echoEl.textContent = '"' + item.q + '"';
+  bodyEl.innerHTML = '<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div>Searching knowledge base\u2026</div>';
+  tagsEl.innerHTML = '';
+  tagsEl.style.display = 'none';
+  respEl.classList.add('visible', 'animate-in');
+  askBtn.disabled = true;
+  askBtn.textContent = 'Querying\u2026';
+
+  setTimeout(function() {
+    bodyEl.innerHTML = '';
+    item.a.split('\n\n').forEach(function(para) {
+      if (para.trim()) {
+        var p = document.createElement('p');
+        p.textContent = para.trim();
         bodyEl.appendChild(p);
       }
     });
-
-    if(sourcesRaw){
-      tagsEl.style.display='flex';
-      sourcesRaw.split('\n').forEach(s=>{
-        const clean=s.replace(/^[-•*\d.]\s*/,'').trim();
-        if(clean){const tag=document.createElement('span');tag.className='source-tag';tag.textContent=clean;tagsEl.appendChild(tag);}
-      });
-    }
-  } catch(err) { bodyEl.textContent='Error connecting to knowledge base. Please try again.'; }
-
-  btn.disabled=false; btn.textContent='Query →';
+    tagsEl.style.display = 'flex';
+    item.sources.forEach(function(src) {
+      var tag = document.createElement('span');
+      tag.className = 'source-tag';
+      tag.textContent = src;
+      tagsEl.appendChild(tag);
+    });
+    askBtn.disabled = false;
+    askBtn.textContent = 'Ask: "' + item.q + '"';
+  }, 1400);
 }
 
-function runQuery()  { runQueryCore('kb-query',  'search-btn',  'ai-response',  'ai-query-echo',  'ai-response-body',  'source-tags'); }
-function runQuery2() { runQueryCore('kb-query-2','search-btn-2','ai-response-2','ai-query-echo-2','ai-response-body-2','source-tags-2'); }
+function switchPanel(id, navEl) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  navEl.classList.add('active');
+  var titles = {
+    kb:      ['Knowledge Base',            '1,204 documents \u00b7 Last indexed 4 min ago'],
+    search:  ['Semantic Search',           'AI-powered search across all indexed documents'],
+    reports: ['Reports',                   '47 open \u00b7 3 urgent'],
+    coord:   ['Inter-Office Coordination', '4 active threads across 6 offices']
+  };
+  var t = titles[id] || ['Ordinance', ''];
+  document.getElementById('topbar-title').textContent = t[0];
+  document.getElementById('topbar-meta').textContent  = t[1];
+}
+
+buildGrids();
 </script>
 </body>
 </html>
