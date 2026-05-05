@@ -25,7 +25,7 @@ const initialQuery: QueryState = {
 };
 
 const TITLES: Record<PanelId, [string, string]> = {
-  kb: ["Knowledge Base", "1,204 documents · Last indexed 4 min ago"],
+  kb: ["Knowledge Base", "1,204 documents"],
   search: ["Semantic Search", "AI-powered search across all indexed documents"],
   reports: ["Reports", "47 open · 3 urgent"],
   coord: ["Inter-Agency Coordination", "4 active threads across 6 agencies"],
@@ -333,11 +333,7 @@ export default function DemoPage() {
             <span className="topbar-title">{topTitle}</span>
             <span className="topbar-meta">{topMeta}</span>
             <div className="topbar-actions">
-              <span style={{ fontSize: 12, color: "var(--text-faint)" }}>
-                <span className="status-dot"></span>All systems operational
-              </span>
-              <button className="btn btn-ghost">Export</button>
-              <button className="btn btn-gold">+ New Report</button>
+              <a href="/" className="btn btn-ghost">Return to home</a>
             </div>
           </div>
 
@@ -445,6 +441,12 @@ function KbPanel({
 }) {
   return (
     <div className="panel active">
+      <div className="kb-notice" role="note">
+        <span className="kb-notice-icon" aria-hidden="true">!</span>
+        <span className="kb-notice-text">
+          Currently, this demo is simply a way to query a knowledge base — currently, full of public Congressional documents. This will evolve to rely on a custom-trained hosted AI instance.
+        </span>
+      </div>
       <div className="kb-search-area">
         <div className="kb-search-label">
           {showRecentDocs
@@ -1173,8 +1175,40 @@ const DEMO_CSS = `
 .demo-app-root .panel.active { display: block; }
 
 .demo-app-root .kb-search-area {
+  position: relative;
   background: var(--cream-card); border: 1px solid var(--border);
   border-radius: 10px; padding: 22px 24px; margin-bottom: 24px;
+}
+.demo-app-root .kb-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fdf6e3;
+  border: 1px solid #e8c97a;
+  border-left: 3px solid #c9962b;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.demo-app-root .kb-notice-icon {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #c9962b;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+.demo-app-root .kb-notice-text {
+  flex: 1;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #5b4413;
 }
 .demo-app-root .kb-search-label {
   font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
