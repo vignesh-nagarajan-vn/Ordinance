@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordinance — Capitol Intelligence Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:        #f0ebe0;
+  --cream-dark:   #e6dfd2;
+  --cream-card:   #faf7f2;
+  --gold:         #b8860b;
+  --gold-light:   #c9950d;
+  --gold-muted:   #d4a832;
+  --gold-pale:    #e8d5a0;
+  --gold-btn:     #8b6508;
+  --text:         #1a1710;
+  --text-mid:     #3d3826;
+  --text-muted:   #7a7260;
+  --text-faint:   #a89e88;
+  --border:       #d5ccb8;
+  --border-light: #e2d9c8;
+  --success:      #4a7c59;
+  --warning:      #9e6d14;
+  --danger:       #8b3a2e;
+  --info:         #2e5a7a;
+}
+
+html, body {
+  height: 100%;
+  background: var(--cream);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(184,134,11,0.18) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { display: flex; height: 100vh; position: relative; z-index: 1; }
+
+.sidebar {
+  width: 230px;
+  min-width: 230px;
+  background: rgba(240,235,224,0.95);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-area {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.logo { display: flex; align-items: center; gap: 9px; margin-bottom: 2px; }
+
+.logo-icon { width: 26px; height: 26px; flex-shrink: 0; }
+
+.logo-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.logo-tagline {
+  font-size: 10px;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-left: 35px;
+  font-weight: 500;
+}
+
+.nav { padding: 14px 0; flex: 1; overflow-y: auto; }
+
+.nav-section-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 12px 20px 5px;
+  font-weight: 600;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 20px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 13px;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.nav-item:hover { color: var(--text); background: rgba(184,134,11,0.06); }
+
+.nav-item.active {
+  color: var(--gold-btn);
+  background: rgba(184,134,11,0.09);
+  border-left-color: var(--gold);
+}
+
+.nav-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--cream-dark);
+  color: var(--text-muted);
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+}
+
+.nav-badge.alert { background: rgba(139,58,46,0.1); color: var(--danger); border-color: rgba(139,58,46,0.2); }
+
+.sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border-light); }
+
+.agency-badge { display: flex; align-items: center; gap: 9px; }
+
+.agency-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(184,134,11,0.1);
+  border: 1px solid var(--gold-pale);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--gold-btn);
+  letter-spacing: 0.04em; flex-shrink: 0;
+}
+
+.agency-name { font-size: 12px; color: var(--text-mid); font-weight: 500; }
+.agency-role { font-size: 10px; color: var(--text-faint); }
+
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.topbar {
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(240,235,224,0.9);
+  display: flex; align-items: center;
+  padding: 0 28px; gap: 14px; flex-shrink: 0;
+}
+
+.topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 600; color: var(--text);
+}
+
+.topbar-meta { font-size: 12px; color: var(--text-faint); }
+.topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--success); display: inline-block; margin-right: 6px;
+}
+
+.btn {
+  padding: 6px 14px; border-radius: 6px;
+  font-size: 12px; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: all 0.15s; border: 1px solid; font-weight: 500;
+}
+
+.btn-ghost { background: transparent; border-color: var(--border); color: var(--text-muted); }
+.btn-ghost:hover { color: var(--text); background: rgba(184,134,11,0.05); border-color: var(--border); }
+
+.btn-gold { background: var(--gold-btn); border-color: var(--gold-btn); color: #fff; }
+.btn-gold:hover { background: var(--gold); border-color: var(--gold); }
+
+.content { flex: 1; overflow-y: auto; padding: 28px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.kb-search-area {
+  background: var(--cream-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+
+.kb-search-label {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: 10px; font-weight: 600;
+}
+
+.search-input-row { display: flex; gap: 10px; align-items: flex-start; }
+
+.search-input {
+  flex: 1;
+  background: var(--cream); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 14px;
+  color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px;
+  resize: none; min-height: 44px; transition: border-color 0.2s; outline: none;
+}
+.search-input:focus { border-color: var(--gold-muted); }
+.search-input::placeholder { color: var(--text-faint); }
+
+.search-btn {
+  padding: 10px 22px; background: var(--gold-btn); border: none; border-radius: 6px;
+  color: #fff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: background 0.15s;
+}
+.search-btn:hover { background: var(--gold); }
+.search-btn:disabled { background: var(--text-faint); cursor: not-allowed; }
+
+.quick-queries { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+
+.qq-pill {
+  font-size: 11px; padding: 4px 11px; border-radius: 20px;
+  border: 1px solid var(--border); color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s; background: transparent;
+}
+.qq-pill:hover { border-color: var(--gold-muted); color: var(--gold-btn); background: rgba(184,134,11,0.05); }
+
+.ai-response {
+  background: var(--cream-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  display: none;
+}
+.ai-response.visible { display: block; }
+
+.ai-response-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+
+.ai-chip {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  background: rgba(184,134,11,0.1); border: 1px solid rgba(184,134,11,0.3);
+  color: var(--gold-btn); padding: 2px 8px; border-radius: 4px; font-weight: 600;
+}
+
+.ai-query-echo { font-size: 12px; color: var(--text-faint); font-style: italic; }
+
+.ai-response-body { font-size: 13.5px; color: var(--text-mid); line-height: 1.78; }
+
+.ai-loading { display: flex; align-items: center; gap: 10px; color: var(--text-faint); font-size: 13px; }
+
+.loading-dots span {
+  display: inline-block; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--gold);
+  animation: blink 1.2s infinite; margin: 0 2px;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+.source-tags {
+  margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px;
+  border-top: 1px solid var(--border-light); padding-top: 12px;
+}
+
+.source-tag {
+  font-size: 11px; padding: 3px 9px; border-radius: 4px;
+  background: rgba(46,90,122,0.07); border: 1px solid rgba(46,90,122,0.18); color: var(--info);
+}
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+
+.section-title { font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
+
+.section-link { font-size: 11px; color: var(--gold); cursor: pointer; }
+.section-link:hover { color: var(--gold-btn); }
+
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; margin-bottom: 28px; }
+
+.doc-card {
+  background: var(--cream-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.15s;
+}
+.doc-card:hover { border-color: var(--gold-muted); }
+
+.doc-card-type {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-faint); font-weight: 600; margin-bottom: 7px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.doc-type-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.doc-card-title { font-size: 13px; color: var(--text); margin-bottom: 7px; line-height: 1.4; }
+.doc-card-meta { font-size: 11px; color: var(--text-faint); display: flex; gap: 10px; }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+
+.stat-card { background: var(--cream-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+
+.stat-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px; font-weight: 600; }
+
+.stat-value { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--text); line-height: 1; }
+
+.stat-delta { font-size: 11px; margin-top: 5px; }
+.delta-up { color: var(--success); }
+
+.report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+.report-table th {
+  text-align: left; padding: 8px 14px;
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-faint); border-bottom: 1px solid var(--border); font-weight: 600;
+}
+
+.report-table td {
+  padding: 11px 14px; border-bottom: 1px solid var(--border-light);
+  color: var(--text-muted); vertical-align: middle;
+}
+.report-table tr:last-child td { border-bottom: none; }
+.report-table tr:hover td { background: rgba(184,134,11,0.03); }
+.report-table td:first-child { color: var(--text); }
+
+.status-pill {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 600;
+}
+.status-open   { background: rgba(74,124,89,0.1);  color: var(--success); border: 1px solid rgba(74,124,89,0.25); }
+.status-review { background: rgba(158,109,20,0.1); color: var(--warning); border: 1px solid rgba(158,109,20,0.25); }
+.status-closed { background: rgba(122,114,96,0.1); color: var(--text-faint); border: 1px solid var(--border); }
+.status-urgent { background: rgba(139,58,46,0.1);  color: var(--danger);  border: 1px solid rgba(139,58,46,0.25); }
+
+.priority-bar { display: flex; align-items: center; gap: 8px; }
+.priority-track { width: 56px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.priority-fill  { height: 100%; border-radius: 2px; }
+
+.agency-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+
+.agency-card { background: var(--cream-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+
+.agency-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+
+.agency-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+
+.agency-card-name { font-size: 13px; color: var(--text); font-weight: 600; }
+.agency-card-dept { font-size: 11px; color: var(--text-faint); }
+.agency-metrics { display: flex; gap: 20px; }
+.agency-metric-val { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); }
+.agency-metric-lbl { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
+
+.thread-list { display: flex; flex-direction: column; gap: 8px; }
+
+.thread-item {
+  background: var(--cream-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 14px;
+  cursor: pointer; transition: border-color 0.15s;
+}
+.thread-item:hover { border-color: var(--gold-muted); }
+
+.thread-agencies { display: flex; flex-direction: column; gap: 3px; min-width: 76px; }
+
+.thread-agency-tag { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; text-align: center; letter-spacing: 0.06em; }
+
+.thread-body { flex: 1; }
+.thread-title { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 3px; }
+.thread-preview { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.thread-meta { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 10px; margin-top: 7px; }
+
+.thread-unread { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; margin-top: 5px; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@keyframes fadeSlide { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+.animate-in { animation: fadeSlide 0.22s ease forwards; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 26 26" fill="none">
+          <path d="M13 2C13 2 5.5 6.5 5.5 14C5.5 18.14 8.86 21.5 13 21.5C17.14 21.5 20.5 18.14 20.5 14C20.5 6.5 13 2Z" fill="#b8860b" opacity="0.9"/>
+          <path d="M13 21.5L13 24.5" stroke="#b8860b" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M13 11.5L9.5 8" stroke="#faf7f2" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+        <span class="logo-name">Ordinance</span>
+      </div>
+      <div class="logo-tagline">Capitol Intelligence</div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section-label">Knowledge</div>
+      <div class="nav-item active" onclick="switchPanel('kb',this)">
+        <span class="nav-icon">◈</span> Knowledge Base
+        <span class="nav-badge">1,204</span>
+      </div>
+      <div class="nav-item" onclick="switchPanel('search',this)">
+        <span class="nav-icon">⊹</span> Semantic Search
+      </div>
+
+      <div class="nav-section-label">Operations</div>
+      <div class="nav-item" onclick="switchPanel('reports',this)">
+        <span class="nav-icon">≡</span> Reports
+        <span class="nav-badge alert">3</span>
+      </div>
+      <div class="nav-item" onclick="switchPanel('coord',this)">
+        <span class="nav-icon">⟐</span> Coordination
+        <span class="nav-badge">12</span>
+      </div>
+      <div class="nav-item" onclick="switchPanel('kb',this)">
+        <span class="nav-icon">◫</span> Compliance
+      </div>
+
+      <div class="nav-section-label">System</div>
+      <div class="nav-item" onclick="switchPanel('kb',this)">
+        <span class="nav-icon">◌</span> Audit Trail
+      </div>
+      <div class="nav-item" onclick="switchPanel('kb',this)">
+        <span class="nav-icon">⊡</span> Settings
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="agency-badge">
+        <div class="agency-avatar">EPA</div>
+        <div>
+          <div class="agency-name">J. Reyes</div>
+          <div class="agency-role">Regional Director</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">Knowledge Base</span>
+      <span class="topbar-meta" id="topbar-meta">1,204 documents · Last indexed 4 min ago</span>
+      <div class="topbar-actions">
+        <span style="font-size:12px;color:var(--text-faint);">
+          <span class="status-dot"></span>All systems operational
+        </span>
+        <button class="btn btn-ghost">Export</button>
+        <button class="btn btn-gold">+ New Report</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Knowledge Base -->
+      <div class="panel active" id="panel-kb">
+        <div class="kb-search-area">
+          <div class="kb-search-label">Query the knowledge base with natural language</div>
+          <div class="search-input-row">
+            <textarea class="search-input" id="kb-query" rows="1"
+              placeholder="e.g. What are the notification requirements for hazardous waste disposal under RCRA?"
+              oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+            <button class="search-btn" id="search-btn" onclick="runQuery()">Query →</button>
+          </div>
+          <div class="quick-queries">
+            <div class="qq-pill" onclick="setQuery(this)">FEMA flood zone reclassification procedures</div>
+            <div class="qq-pill" onclick="setQuery(this)">Title VI environmental justice requirements</div>
+            <div class="qq-pill" onclick="setQuery(this)">Cross-agency data sharing under FISMA</div>
+            <div class="qq-pill" onclick="setQuery(this)">CAA Section 112 HAP emission standards</div>
+          </div>
+        </div>
+
+        <div class="ai-response" id="ai-response">
+          <div class="ai-response-header">
+            <span class="ai-chip">Ordinance AI</span>
+            <span class="ai-query-echo" id="ai-query-echo"></span>
+          </div>
+          <div class="ai-response-body" id="ai-response-body">
+            <div class="ai-loading"><div class="loading-dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>
+          </div>
+          <div class="source-tags" id="source-tags" style="display:none;"></div>
+        </div>
+
+        <div class="section-header">
+          <span class="section-title">Recent Documents</span>
+          <span class="section-link">Browse all →</span>
+        </div>
+
+        <div class="doc-grid">
+          <div class="doc-card">
+            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--info)"></div>Federal Register</div>
+            <div class="doc-card-title">Revised Air Quality Index Thresholds for PM2.5 (Final Rule)</div>
+            <div class="doc-card-meta"><span>EPA-HQ-OAR-2024-0041</span><span>Mar 14, 2025</span></div>
+          </div>
+          <div class="doc-card">
+            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--gold)"></div>Executive Order</div>
+            <div class="doc-card-title">EO 14168 — Strengthening Critical Infrastructure Resilience</div>
+            <div class="doc-card-meta"><span>White House</span><span>Jan 20, 2025</span></div>
+          </div>
+          <div class="doc-card">
+            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--success)"></div>Guidance Memo</div>
+            <div class="doc-card-title">Interagency Permitting Coordination Under NEPA Reform Act</div>
+            <div class="doc-card-meta"><span>CEQ-2025-GM-003</span><span>Feb 28, 2025</span></div>
+          </div>
+          <div class="doc-card">
+            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--danger)"></div>Emergency Directive</div>
+            <div class="doc-card-title">CISA ED 25-02: Mitigation of Critical Vulnerability in ICS Systems</div>
+            <div class="doc-card-meta"><span>CISA</span><span>Apr 3, 2025</span></div>
+          </div>
+          <div class="doc-card">
+            <div class="doc-card-type"><div class="doc-type-dot" style="background:var(--info)"></div>Federal Register</div>
+            <div class="doc-card-title">Proposed Rule: Drinking Water Standards for PFAS Compounds</div>
+            <div class="doc-card-meta"><span>EPA-HQ-OW-2025-0011</span><span>Apr 18, 2025</span></div>
+          </div>
+          <div class="doc-card">
+            <div class="doc-card-type"><div class="doc-type-dot" style="background:#7a5c9e"></div>OMB Circular</div>
+            <div class="doc-card-title">A-123 Update: Enterprise Risk Management Framework Rev. 4</div>
+            <div class="doc-card-meta"><span>OMB M-25-09</span><span>Mar 30, 2025</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Semantic Search -->
+      <div class="panel" id="panel-search">
+        <div class="kb-search-area">
+          <div class="kb-search-label">Ask anything about government regulations and procedures</div>
+          <div class="search-input-row">
+            <textarea class="search-input" id="kb-query-2" rows="1"
+              placeholder="e.g. What notice period is required before a public hearing on a state implementation plan revision?"
+              oninput="autoResize(this)" onkeydown="handleEnter2(event)"></textarea>
+            <button class="search-btn" id="search-btn-2" onclick="runQuery2()">Query →</button>
+          </div>
+          <div class="quick-queries">
+            <div class="qq-pill" onclick="setQuery2(this)">Interagency consultation timelines under ESA</div>
+            <div class="qq-pill" onclick="setQuery2(this)">NEPA categorical exclusion criteria</div>
+            <div class="qq-pill" onclick="setQuery2(this)">Superfund NCP public comment requirements</div>
+          </div>
+        </div>
+        <div class="ai-response" id="ai-response-2">
+          <div class="ai-response-header">
+            <span class="ai-chip">Ordinance AI</span>
+            <span class="ai-query-echo" id="ai-query-echo-2"></span>
+          </div>
+          <div class="ai-response-body" id="ai-response-body-2">
+            <div class="ai-loading"><div class="loading-dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>
+          </div>
+          <div class="source-tags" id="source-tags-2" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div class="panel" id="panel-reports">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Open Reports</div>
+            <div class="stat-value">47</div>
+            <div class="stat-delta delta-up">↑ 5 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Resolution</div>
+            <div class="stat-value">8.2<span style="font-size:14px;color:var(--text-faint)">d</span></div>
+            <div class="stat-delta delta-up">↓ 1.4d improvement</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Agencies Involved</div>
+            <div class="stat-value">14</div>
+            <div class="stat-delta" style="color:var(--text-faint)">across 3 regions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Compliance Rate</div>
+            <div class="stat-value">94<span style="font-size:14px;color:var(--text-faint)">%</span></div>
+            <div class="stat-delta delta-up">↑ 2.1% vs last qtr</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <span class="section-title">Active Reports</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;">Filter</button>
+            <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;">Sort ↕</button>
+          </div>
+        </div>
+
+        <div style="background:var(--cream-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px;">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Report ID / Title</th><th>Agency</th><th>Status</th><th>Priority</th><th>Due</th><th>Assignee</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div>Quarterly Air Permit Compliance Report</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0441</div></td>
+                <td>EPA Region 9</td><td><span class="status-pill status-urgent">Urgent</span></td>
+                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:90%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">9/10</span></div></td>
+                <td style="font-size:12px;">May 7</td><td>J. Reyes</td>
+              </tr>
+              <tr>
+                <td><div>PFAS Groundwater Monitoring — Site Delta</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0438</div></td>
+                <td>EPA / DoD</td><td><span class="status-pill status-review">In Review</span></td>
+                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:70%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">7/10</span></div></td>
+                <td style="font-size:12px;">May 15</td><td>M. Chen</td>
+              </tr>
+              <tr>
+                <td><div>Wetland Mitigation Bank Annual Report</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0429</div></td>
+                <td>USACE / EPA</td><td><span class="status-pill status-open">Active</span></td>
+                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:55%;background:var(--success)"></div></div><span style="font-size:11px;color:var(--success)">5/10</span></div></td>
+                <td style="font-size:12px;">May 30</td><td>T. Park</td>
+              </tr>
+              <tr>
+                <td><div>Tribal Consultation Documentation — NM Pipeline</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0421</div></td>
+                <td>BIA / FERC</td><td><span class="status-pill status-urgent">Urgent</span></td>
+                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:85%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">8/10</span></div></td>
+                <td style="font-size:12px;">May 9</td><td>A. Morales</td>
+              </tr>
+              <tr>
+                <td><div>Section 7 Consultation — ESA Salmon Habitat</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0414</div></td>
+                <td>NMFS / EPA</td><td><span class="status-pill status-review">In Review</span></td>
+                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:60%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">6/10</span></div></td>
+                <td style="font-size:12px;">Jun 1</td><td>S. Johnson</td>
+              </tr>
+              <tr>
+                <td><div>CERCLA 5-Year Review — Superfund Site 88</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">RPT-2025-0398</div></td>
+                <td>EPA OLEM</td><td><span class="status-pill status-closed">Closed</span></td>
+                <td><div class="priority-bar"><div class="priority-track"><div class="priority-fill" style="width:30%;background:var(--text-faint)"></div></div><span style="font-size:11px;color:var(--text-faint)">3/10</span></div></td>
+                <td style="font-size:12px;">Apr 25 ✓</td><td>B. Williams</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Coordination -->
+      <div class="panel" id="panel-coord">
+        <div class="agency-grid">
+          <div class="agency-card">
+            <div class="agency-card-header">
+              <div class="agency-icon" style="background:rgba(46,90,122,0.1);color:var(--info);border:1px solid rgba(46,90,122,0.2);">EPA</div>
+              <div><div class="agency-card-name">Environmental Protection</div><div class="agency-card-dept">Region 9 — Southwest</div></div>
+            </div>
+            <div class="agency-metrics">
+              <div><div class="agency-metric-val">12</div><div class="agency-metric-lbl">open items</div></div>
+              <div><div class="agency-metric-val" style="color:var(--success)">94%</div><div class="agency-metric-lbl">response rate</div></div>
+            </div>
+          </div>
+          <div class="agency-card">
+            <div class="agency-card-header">
+              <div class="agency-icon" style="background:rgba(74,124,89,0.1);color:var(--success);border:1px solid rgba(74,124,89,0.2);">DOI</div>
+              <div><div class="agency-card-name">Dept. of the Interior</div><div class="agency-card-dept">Bureau of Indian Affairs</div></div>
+            </div>
+            <div class="agency-metrics">
+              <div><div class="agency-metric-val">5</div><div class="agency-metric-lbl">open items</div></div>
+              <div><div class="agency-metric-val" style="color:var(--warning)">78%</div><div class="agency-metric-lbl">response rate</div></div>
+            </div>
+          </div>
+          <div class="agency-card">
+            <div class="agency-card-header">
+              <div class="agency-icon" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);border:1px solid rgba(184,134,11,0.2);">USACE</div>
+              <div><div class="agency-card-name">Army Corps of Engineers</div><div class="agency-card-dept">Los Angeles District</div></div>
+            </div>
+            <div class="agency-metrics">
+              <div><div class="agency-metric-val">8</div><div class="agency-metric-lbl">open items</div></div>
+              <div><div class="agency-metric-val" style="color:var(--success)">91%</div><div class="agency-metric-lbl">response rate</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-bottom:12px;">
+          <span class="section-title">Active Coordination Threads</span>
+          <button class="btn btn-gold" style="font-size:11px;padding:5px 12px;">+ New Thread</button>
+        </div>
+
+        <div class="thread-list">
+          <div class="thread-item">
+            <div class="thread-unread"></div>
+            <div class="thread-agencies">
+              <div class="thread-agency-tag" style="background:rgba(46,90,122,0.1);color:var(--info);">EPA</div>
+              <div class="thread-agency-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);">USACE</div>
+            </div>
+            <div class="thread-body">
+              <div class="thread-title">Section 404 / Section 401 Joint Review — Rillito Wetland Restoration</div>
+              <div class="thread-preview">USACE requested EPA water quality cert. EPA Region 9 flagged potential ESA Section 7 trigger — awaiting NMFS consultation status from DoI liaison before proceeding.</div>
+              <div class="thread-meta"><span class="status-pill status-review">In Review</span><span>14 messages</span><span>2h ago</span></div>
+            </div>
+          </div>
+          <div class="thread-item">
+            <div class="thread-unread"></div>
+            <div class="thread-agencies">
+              <div class="thread-agency-tag" style="background:rgba(46,90,122,0.1);color:var(--info);">EPA</div>
+              <div class="thread-agency-tag" style="background:rgba(74,124,89,0.1);color:var(--success);">DOI</div>
+              <div class="thread-agency-tag" style="background:rgba(122,92,158,0.1);color:#7a5c9e;">FERC</div>
+            </div>
+            <div class="thread-body">
+              <div class="thread-title">NM Pipeline Project — Tribal Consultation & Environmental Review</div>
+              <div class="thread-preview">Three-agency coordination on NHPA Section 106, NEPA EIS, and tribal consultation timelines. BIA lead has requested 30-day extension for sovereign nation review period.</div>
+              <div class="thread-meta"><span class="status-pill status-urgent">Urgent</span><span>31 messages</span><span>45m ago</span></div>
+            </div>
+          </div>
+          <div class="thread-item">
+            <div class="thread-agencies">
+              <div class="thread-agency-tag" style="background:rgba(46,90,122,0.1);color:var(--info);">EPA</div>
+              <div class="thread-agency-tag" style="background:rgba(139,58,46,0.1);color:var(--danger);">DoD</div>
+            </div>
+            <div class="thread-body">
+              <div class="thread-title">PFAS Remediation Cost-Share Agreement — Tucson AFB Adjacent Sites</div>
+              <div class="thread-preview">EPA and DoD resolving cost allocation under CERCLA for PFAS plume originating at Air Force installation. Draft MOA under legal review at both agencies.</div>
+              <div class="thread-meta"><span class="status-pill status-open">Active</span><span>22 messages</span><span>yesterday</span></div>
+            </div>
+          </div>
+          <div class="thread-item">
+            <div class="thread-agencies">
+              <div class="thread-agency-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);">USACE</div>
+              <div class="thread-agency-tag" style="background:rgba(74,124,89,0.1);color:var(--success);">NMFS</div>
+            </div>
+            <div class="thread-body">
+              <div class="thread-title">Biological Opinion — Yuma Irrigation District Diversion Structure</div>
+              <div class="thread-preview">BiOp issued with Reasonable and Prudent Alternatives. USACE confirming Section 404 permit conditions align with NMFS RPAs. Final coordination memo due May 20.</div>
+              <div class="thread-meta"><span class="status-pill status-review">In Review</span><span>9 messages</span><span>3 days ago</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function switchPanel(id, navEl) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  navEl.classList.add('active');
+  const titles = {
+    kb:      ['Knowledge Base',           '1,204 documents · Last indexed 4 min ago'],
+    search:  ['Semantic Search',          'AI-powered search across all indexed documents'],
+    reports: ['Reports',                  '47 open · 3 urgent'],
+    coord:   ['Inter-Agency Coordination','4 active threads across 6 agencies']
+  };
+  const t = titles[id] || ['Ordinance', ''];
+  document.getElementById('topbar-title').textContent = t[0];
+  document.getElementById('topbar-meta').textContent = t[1];
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleEnter(e)  { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();runQuery();} }
+function handleEnter2(e) { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();runQuery2();} }
+function setQuery(el)  { const q=document.getElementById('kb-query');  q.value=el.textContent; autoResize(q); }
+function setQuery2(el) { const q=document.getElementById('kb-query-2'); q.value=el.textContent; autoResize(q); }
+
+async function runQueryCore(queryId,btnId,responseId,echoId,bodyId,tagsId) {
+  const query = document.getElementById(queryId).value.trim();
+  if (!query) return;
+
+  const btn=document.getElementById(btnId), responseEl=document.getElementById(responseId),
+    echoEl=document.getElementById(echoId), bodyEl=document.getElementById(bodyId),
+    tagsEl=document.getElementById(tagsId);
+
+  btn.disabled=true; btn.textContent='Querying…';
+  echoEl.textContent='"'+query+'"';
+  bodyEl.innerHTML='<div class="ai-loading"><div class="loading-dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>';
+  tagsEl.style.display='none'; tagsEl.innerHTML='';
+  responseEl.classList.add('visible','animate-in');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`You are the Ordinance AI — an expert government intelligence assistant with deep knowledge of U.S. federal regulations, congressional procedures, environmental law, interagency coordination, permitting, and compliance. Answer questions concisely and authoritatively, citing specific regulatory references (CFR sections, USC titles, agency guidance, executive orders) where relevant. Write 2–4 clear paragraphs under 250 words total. End with a line starting "SOURCES:" listing 2–4 specific source document identifiers. No markdown formatting.`,
+        messages:[{role:'user',content:query}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'No response received.';
+    const parts=text.split(/\nSOURCES:/i);
+    const answer=parts[0].trim(), sourcesRaw=parts[1]?parts[1].trim():'';
+
+    bodyEl.innerHTML='';
+    answer.split('\n\n').forEach(para=>{
+      if(para.trim()){
+        const p=document.createElement('p');
+        p.style.marginBottom='10px'; p.textContent=para.trim();
+        bodyEl.appendChild(p);
+      }
+    });
+
+    if(sourcesRaw){
+      tagsEl.style.display='flex';
+      sourcesRaw.split('\n').forEach(s=>{
+        const clean=s.replace(/^[-•*\d.]\s*/,'').trim();
+        if(clean){const tag=document.createElement('span');tag.className='source-tag';tag.textContent=clean;tagsEl.appendChild(tag);}
+      });
+    }
+  } catch(err) { bodyEl.textContent='Error connecting to knowledge base. Please try again.'; }
+
+  btn.disabled=false; btn.textContent='Query →';
+}
+
+function runQuery()  { runQueryCore('kb-query',  'search-btn',  'ai-response',  'ai-query-echo',  'ai-response-body',  'source-tags'); }
+function runQuery2() { runQueryCore('kb-query-2','search-btn-2','ai-response-2','ai-query-echo-2','ai-response-body-2','source-tags-2'); }
+</script>
+</body>
+</html>
