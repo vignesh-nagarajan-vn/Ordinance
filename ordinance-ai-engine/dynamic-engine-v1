@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordinance — Capitol Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#f0ebe0;--cream-dark:#e6dfd2;--cream-card:#faf7f2;
+  --gold:#b8860b;--gold-muted:#d4a832;--gold-pale:#e8d5a0;--gold-btn:#8b6508;
+  --text:#1a1710;--text-mid:#3d3826;--text-muted:#7a7260;--text-faint:#a89e88;
+  --border:#d5ccb8;--border-light:#e2d9c8;
+  --success:#4a7c59;--warning:#9e6d14;--danger:#8b3a2e;--info:#2e5a7a;
+}
+html,body{height:100%;background:var(--cream);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(184,134,11,0.18) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;z-index:0}
+.app{display:flex;height:100vh;position:relative;z-index:1}
+
+/* Sidebar */
+.sidebar{width:230px;min-width:230px;background:rgba(240,235,224,0.97);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.logo-area{padding:22px 20px 18px;border-bottom:1px solid var(--border-light)}
+.logo{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+.logo-icon{width:26px;height:26px;flex-shrink:0}
+.logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text)}
+.logo-tagline{font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;padding-left:35px;font-weight:500}
+.nav{padding:14px 0;flex:1;overflow-y:auto}
+.nav-section-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);padding:12px 20px 5px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 20px;cursor:pointer;color:var(--text-muted);font-size:13px;border-left:2px solid transparent;transition:all .15s;user-select:none}
+.nav-item:hover{color:var(--text);background:rgba(184,134,11,0.06)}
+.nav-item.active{color:var(--gold-btn);background:rgba(184,134,11,0.09);border-left-color:var(--gold)}
+.nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--cream-dark);color:var(--text-muted);font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid var(--border-light)}
+.nav-badge.alert{background:rgba(139,58,46,0.1);color:var(--danger);border-color:rgba(139,58,46,0.2)}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--border-light)}
+.agency-badge{display:flex;align-items:center;gap:9px}
+.agency-avatar{width:30px;height:30px;border-radius:50%;background:rgba(184,134,11,0.1);border:1px solid var(--gold-pale);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--gold-btn);flex-shrink:0}
+.agency-name{font-size:12px;color:var(--text-mid);font-weight:500}
+.agency-role{font-size:10px;color:var(--text-faint)}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;border-bottom:1px solid var(--border);background:rgba(240,235,224,0.9);display:flex;align-items:center;padding:0 28px;gap:14px;flex-shrink:0}
+.topbar-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text)}
+.topbar-meta{font-size:12px;color:var(--text-faint)}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;margin-right:6px}
+.btn{padding:6px 14px;border-radius:6px;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;border:1px solid;font-weight:500}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text-muted)}
+.btn-ghost:hover{color:var(--text);background:rgba(184,134,11,0.05)}
+.btn-gold{background:var(--gold-btn);border-color:var(--gold-btn);color:#fff}
+.btn-gold:hover{background:var(--gold);border-color:var(--gold)}
+.content{flex:1;overflow-y:auto;padding:28px}
+.panel{display:none}
+.panel.active{display:block}
+
+/* API Key Banner */
+.api-banner{background:rgba(139,58,46,0.07);border:1px solid rgba(139,58,46,0.2);border-radius:8px;padding:14px 18px;margin-bottom:18px;display:none}
+.api-banner.visible{display:flex;align-items:center;gap:12px}
+.api-banner-text{font-size:12.5px;color:var(--danger);flex:1}
+.api-key-input{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);outline:none}
+.api-key-input:focus{border-color:var(--gold)}
+
+/* Custom question input */
+.custom-input-area{margin-top:12px;display:flex;gap:8px}
+.custom-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);outline:none}
+.custom-input:focus{border-color:var(--gold-muted)}
+.custom-input::placeholder{color:var(--text-faint)}
+
+/* KB search area */
+.kb-search-area{background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:22px 24px;margin-bottom:24px}
+.kb-search-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px;font-weight:600}
+.question-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.q-btn{text-align:left;padding:11px 14px;background:var(--cream);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text-mid);line-height:1.4}
+.q-btn:hover{border-color:var(--gold-muted);color:var(--gold-btn);background:rgba(184,134,11,0.04)}
+.q-btn.selected{border-color:var(--gold);background:rgba(184,134,11,0.08);color:var(--gold-btn)}
+.q-num{display:block;font-size:10px;color:var(--text-faint);margin-bottom:3px;font-weight:600;letter-spacing:.08em}
+.ask-btn{width:100%;padding:11px;background:var(--gold-btn);border:none;border-radius:6px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+.ask-btn:hover{background:var(--gold)}
+.ask-btn:disabled{background:var(--text-faint);cursor:not-allowed}
+
+/* AI response */
+.ai-response{background:var(--cream-card);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:20px 24px;margin-bottom:22px;display:none}
+.ai-response.visible{display:block}
+.ai-response-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ai-chip{font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:rgba(184,134,11,0.1);border:1px solid rgba(184,134,11,0.3);color:var(--gold-btn);padding:2px 8px;border-radius:4px;font-weight:600}
+.ai-model-chip{font-size:10px;letter-spacing:.05em;background:rgba(46,90,122,0.08);border:1px solid rgba(46,90,122,0.2);color:var(--info);padding:2px 8px;border-radius:4px}
+.ai-query-echo{font-size:12px;color:var(--text-faint);font-style:italic;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai-body{font-size:13.5px;color:var(--text-mid);line-height:1.78}
+.ai-body p{margin-bottom:10px}
+.ai-body p:last-child{margin-bottom:0}
+.ai-loading{display:flex;align-items:center;gap:10px;color:var(--text-faint);font-size:13px}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 1.2s infinite;margin:0 2px}
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.source-tags{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--border-light);padding-top:12px}
+.source-tag{font-size:11px;padding:3px 9px;border-radius:4px;background:rgba(46,90,122,0.07);border:1px solid rgba(46,90,122,0.18);color:var(--info)}
+.error-msg{color:var(--danger);font-size:13px;padding:10px 0}
+
+/* Doc grid */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--text-faint);font-weight:600}
+.section-link{font-size:11px;color:var(--gold);cursor:pointer}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-bottom:28px}
+.doc-card{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;transition:all .15s}
+.doc-card:hover{border-color:var(--gold-muted)}
+.doc-type{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.doc-title{font-size:13px;color:var(--text);margin-bottom:7px;line-height:1.4}
+.doc-meta{font-size:11px;color:var(--text-faint);display:flex;gap:10px}
+
+/* Reports */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.stat-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;font-weight:600}
+.stat-value{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--text);line-height:1}
+.stat-delta{font-size:11px;margin-top:5px}
+.delta-up{color:var(--success)}
+.report-table{width:100%;border-collapse:collapse;font-size:13px}
+.report-table th{text-align:left;padding:8px 14px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);border-bottom:1px solid var(--border);font-weight:600}
+.report-table td{padding:11px 14px;border-bottom:1px solid var(--border-light);color:var(--text-muted);vertical-align:middle}
+.report-table tr:last-child td{border-bottom:none}
+.report-table tr:hover td{background:rgba(184,134,11,0.03)}
+.report-table td:first-child{color:var(--text)}
+.pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:600}
+.p-open{background:rgba(74,124,89,0.1);color:var(--success);border:1px solid rgba(74,124,89,0.25)}
+.p-review{background:rgba(158,109,20,0.1);color:var(--warning);border:1px solid rgba(158,109,20,0.25)}
+.p-closed{background:rgba(122,114,96,0.1);color:var(--text-faint);border:1px solid var(--border)}
+.p-urgent{background:rgba(139,58,46,0.1);color:var(--danger);border:1px solid rgba(139,58,46,0.25)}
+.pbar{display:flex;align-items:center;gap:8px}
+.ptrack{width:56px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.pfill{height:100%;border-radius:2px}
+
+/* Coordination */
+.agency-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.agency-card{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.ac-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ac-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ac-name{font-size:13px;color:var(--text);font-weight:600}
+.ac-dept{font-size:11px;color:var(--text-faint)}
+.ac-metrics{display:flex;gap:20px}
+.ac-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text)}
+.ac-lbl{font-size:10px;color:var(--text-faint);margin-top:1px}
+.thread-list{display:flex;flex-direction:column;gap:8px}
+.thread{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:flex-start;gap:14px;cursor:pointer;transition:border-color .15s}
+.thread:hover{border-color:var(--gold-muted)}
+.t-agencies{display:flex;flex-direction:column;gap:3px;min-width:76px}
+.t-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;text-align:center;letter-spacing:.06em}
+.t-body{flex:1}
+.t-title{font-size:13px;color:var(--text);font-weight:500;margin-bottom:3px}
+.t-preview{font-size:12px;color:var(--text-muted);line-height:1.5}
+.t-meta{font-size:11px;color:var(--text-faint);display:flex;align-items:center;gap:10px;margin-top:7px}
+.t-unread{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeSlide .22s ease forwards}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 26 26" fill="none">
+          <path d="M13 2C13 2 5.5 6.5 5.5 14C5.5 18.14 8.86 21.5 13 21.5C17.14 21.5 20.5 18.14 20.5 14C20.5 6.5 13 2Z" fill="#b8860b" opacity="0.9"/>
+          <path d="M13 21.5L13 24.5" stroke="#b8860b" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M13 11.5L9.5 8" stroke="#faf7f2" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+        <span class="logo-name">Ordinance</span>
+      </div>
+      <div class="logo-tagline">Capitol Intelligence</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section-label">Knowledge</div>
+      <div class="nav-item active" onclick="switchPanel('kb',this)"><span class="nav-icon">◈</span> Knowledge Base<span class="nav-badge">1,204</span></div>
+      <div class="nav-item" onclick="switchPanel('search',this)"><span class="nav-icon">⊹</span> Semantic Search</div>
+      <div class="nav-section-label">Operations</div>
+      <div class="nav-item" onclick="switchPanel('reports',this)"><span class="nav-icon">≡</span> Reports<span class="nav-badge alert">3</span></div>
+      <div class="nav-item" onclick="switchPanel('coord',this)"><span class="nav-icon">⟐</span> Coordination<span class="nav-badge">12</span></div>
+      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">◫</span> Compliance</div>
+      <div class="nav-section-label">System</div>
+      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">◌</span> Audit Trail</div>
+      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">⊡</span> Settings</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="agency-badge">
+        <div class="agency-avatar">TX-3</div>
+        <div><div class="agency-name">M. Harrison</div><div class="agency-role">Chief of Staff</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">Knowledge Base</span>
+      <span class="topbar-meta" id="topbar-meta">1,204 documents · Last indexed 4 min ago</span>
+      <div class="topbar-actions">
+        <span style="font-size:12px;color:var(--text-faint)"><span class="status-dot"></span>All systems operational</span>
+        <button class="btn btn-ghost">Export</button>
+        <button class="btn btn-gold">+ New Report</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- API Key Setup Banner -->
+      <div class="api-banner visible" id="api-banner">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--danger);margin-bottom:6px">🔑 Enter your Anthropic API Key to enable live AI responses</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="api-key-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." />
+            <button class="btn btn-gold" onclick="saveApiKey()" style="white-space:nowrap">Save Key</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-faint);margin-top:5px">Key is stored in localStorage and never sent anywhere except api.anthropic.com</div>
+        </div>
+      </div>
+
+      <!-- KB Panel -->
+      <div class="panel active" id="panel-kb">
+        <div class="kb-search-area">
+          <div class="kb-search-label">Select a preset question or type your own</div>
+          <div class="question-grid" id="qgrid-kb"></div>
+          <div class="custom-input-area">
+            <input class="custom-input" id="custom-input-kb" placeholder="Or ask your own question about congressional procedure, ethics, legislation…" />
+            <button class="btn btn-ghost" onclick="useCustomInput('kb')" style="white-space:nowrap">Ask This</button>
+          </div>
+          <div style="margin-top:10px">
+            <button class="ask-btn" id="ask-btn-kb" onclick="runQuery('kb')" disabled>Select a question above to query</button>
+          </div>
+        </div>
+        <div class="ai-response" id="ai-resp-kb">
+          <div class="ai-response-header">
+            <span class="ai-chip">Ordinance AI</span>
+            <span class="ai-model-chip">claude-haiku-4-5</span>
+            <span class="ai-query-echo" id="echo-kb"></span>
+          </div>
+          <div class="ai-body" id="body-kb"></div>
+          <div class="source-tags" id="tags-kb"></div>
+        </div>
+        <div class="section-header">
+          <span class="section-title">Recent Documents</span>
+          <span class="section-link">Browse all →</span>
+        </div>
+        <div class="doc-grid">
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--info)"></div>Congressional Record</div><div class="doc-title">Floor Debate Transcript — H.R. 2847 Infrastructure Reauthorization</div><div class="doc-meta"><span>119th Congress</span><span>Apr 29, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--gold)"></div>Committee Report</div><div class="doc-title">House Appropriations Subcommittee Markup — FY2026 Labor-HHS</div><div class="doc-meta"><span>HAC-LH-2025-04</span><span>Apr 22, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--success)"></div>CRS Report</div><div class="doc-title">The Federal Budget Process: A Brief Overview</div><div class="doc-meta"><span>R46240</span><span>Mar 10, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--danger)"></div>Ethics Guidance</div><div class="doc-title">House Ethics Manual 2025 — Staff Gift & Travel Rules</div><div class="doc-meta"><span>HOE-2025-01</span><span>Jan 15, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--info)"></div>CRS Report</div><div class="doc-title">Discharge Petitions and the Legislative Process</div><div class="doc-meta"><span>RS20301</span><span>Feb 3, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--warning)"></div>Member Guidance</div><div class="doc-title">Office Operations Handbook — 119th Congress Edition</div><div class="doc-meta"><span>CAO-OPS-2025</span><span>Jan 6, 2025</span></div></div>
+        </div>
+      </div>
+
+      <!-- Search Panel -->
+      <div class="panel" id="panel-search">
+        <div class="kb-search-area">
+          <div class="kb-search-label">Ask anything about congressional procedure, legislation, or ethics</div>
+          <div class="question-grid" id="qgrid-search"></div>
+          <div class="custom-input-area">
+            <input class="custom-input" id="custom-input-search" placeholder="Type any question about Congress…" />
+            <button class="btn btn-ghost" onclick="useCustomInput('search')" style="white-space:nowrap">Ask This</button>
+          </div>
+          <div style="margin-top:10px">
+            <button class="ask-btn" id="ask-btn-search" onclick="runQuery('search')" disabled>Select a question above to query</button>
+          </div>
+        </div>
+        <div class="ai-response" id="ai-resp-search">
+          <div class="ai-response-header">
+            <span class="ai-chip">Ordinance AI</span>
+            <span class="ai-model-chip">claude-haiku-4-5</span>
+            <span class="ai-query-echo" id="echo-search"></span>
+          </div>
+          <div class="ai-body" id="body-search"></div>
+          <div class="source-tags" id="tags-search"></div>
+        </div>
+      </div>
+
+      <!-- Reports Panel -->
+      <div class="panel" id="panel-reports">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-label">Open Reports</div><div class="stat-value">47</div><div class="stat-delta delta-up">↑ 5 this week</div></div>
+          <div class="stat-card"><div class="stat-label">Avg Resolution</div><div class="stat-value">8.2<span style="font-size:14px;color:var(--text-faint)">d</span></div><div class="stat-delta delta-up">↓ 1.4d improvement</div></div>
+          <div class="stat-card"><div class="stat-label">Offices Involved</div><div class="stat-value">14</div><div class="stat-delta" style="color:var(--text-faint)">across 3 caucuses</div></div>
+          <div class="stat-card"><div class="stat-label">Response Rate</div><div class="stat-value">94<span style="font-size:14px;color:var(--text-faint)">%</span></div><div class="stat-delta delta-up">↑ 2.1% vs last qtr</div></div>
+        </div>
+        <div class="section-header">
+          <span class="section-title">Active Reports</span>
+          <div style="display:flex;gap:8px"><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px">Filter</button><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px">Sort ↕</button></div>
+        </div>
+        <div style="background:var(--cream-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px">
+          <table class="report-table">
+            <thead><tr><th>Report / Title</th><th>Office</th><th>Status</th><th>Priority</th><th>Due</th><th>Lead</th></tr></thead>
+            <tbody>
+              <tr><td><div>FY2026 Appropriations Position Memo</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0441</div></td><td>TX-03</td><td><span class="pill p-urgent">Urgent</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:90%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">9/10</span></div></td><td style="font-size:12px">May 7</td><td>M. Harrison</td></tr>
+              <tr><td><div>Constituent Correspondence Summary — Immigration</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0438</div></td><td>TX-03</td><td><span class="pill p-review">In Review</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:70%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">7/10</span></div></td><td style="font-size:12px">May 15</td><td>L. Park</td></tr>
+              <tr><td><div>Committee Hearing Prep — Energy Subcommittee</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0429</div></td><td>TX-03 / EC</td><td><span class="pill p-open">Active</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:55%;background:var(--success)"></div></div><span style="font-size:11px;color:var(--success)">5/10</span></div></td><td style="font-size:12px">May 30</td><td>T. Okafor</td></tr>
+              <tr><td><div>Floor Speech Draft — H.R. 2847 Infrastructure</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0421</div></td><td>TX-03</td><td><span class="pill p-urgent">Urgent</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:85%;background:var(--danger)"></div></div><span style="font-size:11px;color:var(--danger)">8/10</span></div></td><td style="font-size:12px">May 9</td><td>A. Cruz</td></tr>
+              <tr><td><div>Town Hall Briefing Book — May Recess</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0414</div></td><td>TX-03</td><td><span class="pill p-review">In Review</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:60%;background:var(--warning)"></div></div><span style="font-size:11px;color:var(--warning)">6/10</span></div></td><td style="font-size:12px">Jun 1</td><td>M. Harrison</td></tr>
+              <tr><td><div>Quarterly Newsletter — Spring Edition</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">RPT-2025-0398</div></td><td>TX-03</td><td><span class="pill p-closed">Closed</span></td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:30%;background:var(--text-faint)"></div></div><span style="font-size:11px;color:var(--text-faint)">3/10</span></div></td><td style="font-size:12px">Apr 25 ✓</td><td>R. Simmons</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Coordination Panel -->
+      <div class="panel" id="panel-coord">
+        <div class="agency-grid">
+          <div class="agency-card"><div class="ac-header"><div class="ac-icon" style="background:rgba(46,90,122,0.1);color:var(--info);border:1px solid rgba(46,90,122,0.2)">TX-3</div><div><div class="ac-name">Rep. Carter's Office</div><div class="ac-dept">TX-03 · Energy Committee</div></div></div><div class="ac-metrics"><div><div class="ac-val">12</div><div class="ac-lbl">open items</div></div><div><div class="ac-val" style="color:var(--success)">94%</div><div class="ac-lbl">response rate</div></div></div></div>
+          <div class="agency-card"><div class="ac-header"><div class="ac-icon" style="background:rgba(74,124,89,0.1);color:var(--success);border:1px solid rgba(74,124,89,0.2)">TX-7</div><div><div class="ac-name">Rep. Fletcher's Office</div><div class="ac-dept">TX-07 · Appropriations</div></div></div><div class="ac-metrics"><div><div class="ac-val">5</div><div class="ac-lbl">open items</div></div><div><div class="ac-val" style="color:var(--warning)">78%</div><div class="ac-lbl">response rate</div></div></div></div>
+          <div class="agency-card"><div class="ac-header"><div class="ac-icon" style="background:rgba(184,134,11,0.1);color:var(--gold-btn);border:1px solid rgba(184,134,11,0.2)">CBO</div><div><div class="ac-name">Cong. Budget Office</div><div class="ac-dept">Score requests · Analysis</div></div></div><div class="ac-metrics"><div><div class="ac-val">8</div><div class="ac-lbl">open items</div></div><div><div class="ac-val" style="color:var(--success)">91%</div><div class="ac-lbl">response rate</div></div></div></div>
+        </div>
+        <div class="section-header" style="margin-bottom:12px">
+          <span class="section-title">Active Coordination Threads</span>
+          <button class="btn btn-gold" style="font-size:11px;padding:5px 12px">+ New Thread</button>
+        </div>
+        <div class="thread-list">
+          <div class="thread"><div class="t-unread"></div><div class="t-agencies"><div class="t-tag" style="background:rgba(46,90,122,0.1);color:var(--info)">TX-03</div><div class="t-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn)">TX-07</div></div><div class="t-body"><div class="t-title">Joint Cosponsor Request — H.R. 2847 Infrastructure Reauthorization</div><div class="t-preview">TX-07 reviewing the bill text and CBO preliminary score. Waiting on whip count from leadership before committing to cosponsor. Expected response by EOD Friday.</div><div class="t-meta"><span class="pill p-review">In Review</span><span>14 messages</span><span>2h ago</span></div></div></div>
+          <div class="thread"><div class="t-unread"></div><div class="t-agencies"><div class="t-tag" style="background:rgba(46,90,122,0.1);color:var(--info)">TX-03</div><div class="t-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn)">CBO</div><div class="t-tag" style="background:rgba(122,92,158,0.1);color:#7a5c9e">JCT</div></div><div class="t-body"><div class="t-title">FY2026 Budget Amendment — CBO Score Request</div><div class="t-preview">CBO preliminary score requested for proposed spending offset amendment. Joint Committee on Taxation reviewing revenue impact of the refundable tax credit provision.</div><div class="t-meta"><span class="pill p-urgent">Urgent</span><span>31 messages</span><span>45m ago</span></div></div></div>
+          <div class="thread"><div class="t-agencies"><div class="t-tag" style="background:rgba(46,90,122,0.1);color:var(--info)">TX-03</div><div class="t-tag" style="background:rgba(139,58,46,0.1);color:var(--danger)">OMB</div></div><div class="t-body"><div class="t-title">Constituent Casework — Federal Grant Delay Review</div><div class="t-preview">OMB reviewing administrative hold on EPA grant awarded to Beaumont clean water project. Congressional liaison flagged for expedited review after constituent outreach.</div><div class="t-meta"><span class="pill p-open">Active</span><span>22 messages</span><span>yesterday</span></div></div></div>
+          <div class="thread"><div class="t-agencies"><div class="t-tag" style="background:rgba(184,134,11,0.1);color:var(--gold-btn)">TX-07</div><div class="t-tag" style="background:rgba(74,124,89,0.1);color:var(--success)">CRS</div></div><div class="t-body"><div class="t-title">Research Request — Comparative Grid Modernization Policy</div><div class="t-preview">CRS preparing analysis of state-level grid resilience legislation for Energy Subcommittee hearing prep. Delivery expected May 12.</div><div class="t-meta"><span class="pill p-review">In Review</span><span>9 messages</span><span>3 days ago</span></div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+var API_KEY_STORAGE = 'ordinance_api_key';
+var MODEL = 'claude-haiku-4-5-20251001';
+
+var SYSTEM_PROMPT = `You are Ordinance AI, an expert assistant for congressional staff embedded in the Ordinance Capitol Intelligence platform. You answer questions about U.S. congressional procedure, House and Senate rules, legislative process, federal ethics rules, appropriations, and related topics. 
+
+Keep responses clear and informative, structured in 2-4 paragraphs. Be authoritative but accessible. At the end of your response, on a new line starting with "SOURCES:", list 2-4 specific authoritative sources (statutes, House rules, CRS reports, etc.) that are relevant, separated by " | ". Do not use bullet points or markdown headers — plain prose paragraphs only.`;
+
+var PRESET_QUESTIONS = [
+  "How do I introduce a bill in the House?",
+  "What are the gift rules for congressional staff?",
+  "How does the appropriations process work?",
+  "What is a discharge petition and when is it used?",
+  "How do I request a Congressional Research Service report?",
+  "What happens during a government shutdown?"
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+var selectedQuestion = { kb: '', search: '' };
+
+// ── API Key management ───────────────────────────────────────────────────────
+function getApiKey() {
+  return localStorage.getItem(API_KEY_STORAGE) || '';
+}
+
+function saveApiKey() {
+  var key = document.getElementById('api-key-input').value.trim();
+  if (!key) return;
+  localStorage.setItem(API_KEY_STORAGE, key);
+  document.getElementById('api-banner').classList.remove('visible');
+  alert('API key saved. You can now query the knowledge base.');
+}
+
+function initApiKey() {
+  var key = getApiKey();
+  if (key) {
+    document.getElementById('api-banner').classList.remove('visible');
+  } else {
+    document.getElementById('api-banner').classList.add('visible');
+  }
+}
+
+// ── Question grids ────────────────────────────────────────────────────────────
+function buildGrids() {
+  ['kb', 'search'].forEach(function(panel) {
+    var grid = document.getElementById('qgrid-' + panel);
+    PRESET_QUESTIONS.forEach(function(q, i) {
+      var btn = document.createElement('button');
+      btn.className = 'q-btn';
+      btn.innerHTML = '<span class="q-num">Q' + (i + 1) + '</span>' + q;
+      btn.onclick = function() { selectQuestion(panel, q, i, grid); };
+      grid.appendChild(btn);
+    });
+  });
+}
+
+function selectQuestion(panel, q, idx, grid) {
+  selectedQuestion[panel] = q;
+  var btns = grid.querySelectorAll('.q-btn');
+  btns.forEach(function(b, i) { b.classList.toggle('selected', i === idx); });
+  var askBtn = document.getElementById('ask-btn-' + panel);
+  askBtn.textContent = 'Ask: "' + q + '"';
+  askBtn.disabled = false;
+  // Clear custom input
+  document.getElementById('custom-input-' + panel).value = '';
+}
+
+function useCustomInput(panel) {
+  var val = document.getElementById('custom-input-' + panel).value.trim();
+  if (!val) return;
+  selectedQuestion[panel] = val;
+  // Deselect preset buttons
+  var btns = document.querySelectorAll('#qgrid-' + panel + ' .q-btn');
+  btns.forEach(function(b) { b.classList.remove('selected'); });
+  var askBtn = document.getElementById('ask-btn-' + panel);
+  askBtn.textContent = 'Ask: "' + val.substring(0, 60) + (val.length > 60 ? '…' : '') + '"';
+  askBtn.disabled = false;
+}
+
+// Allow Enter key in custom input
+document.addEventListener('DOMContentLoaded', function() {
+  ['kb', 'search'].forEach(function(panel) {
+    var input = document.getElementById('custom-input-' + panel);
+    if (input) {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { useCustomInput(panel); runQuery(panel); }
+      });
+    }
+  });
+});
+
+// ── API call ──────────────────────────────────────────────────────────────────
+async function runQuery(panel) {
+  var q = selectedQuestion[panel];
+  if (!q) return;
+
+  var apiKey = getApiKey();
+  if (!apiKey) {
+    document.getElementById('api-banner').classList.add('visible');
+    alert('Please enter your Anthropic API key first.');
+    return;
+  }
+
+  var respEl   = document.getElementById('ai-resp-' + panel);
+  var echoEl   = document.getElementById('echo-' + panel);
+  var bodyEl   = document.getElementById('body-' + panel);
+  var tagsEl   = document.getElementById('tags-' + panel);
+  var askBtn   = document.getElementById('ask-btn-' + panel);
+
+  echoEl.textContent = '"' + q + '"';
+  bodyEl.innerHTML = '<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div>Querying knowledge base…</div>';
+  tagsEl.innerHTML = '';
+  tagsEl.style.display = 'none';
+  respEl.classList.add('visible', 'animate-in');
+  askBtn.disabled = true;
+  askBtn.textContent = 'Querying…';
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: q }]
+      })
+    });
+
+    if (!response.ok) {
+      var err = await response.json().catch(function() { return {}; });
+      throw new Error(err.error && err.error.message ? err.error.message : 'API error ' + response.status);
+    }
+
+    var data = await response.json();
+    var fullText = data.content[0].text;
+
+    // Split out SOURCES: line if present
+    var sourcesMatch = fullText.match(/\nSOURCES?:\s*(.+)$/s);
+    var bodyText = sourcesMatch ? fullText.slice(0, sourcesMatch.index).trim() : fullText.trim();
+    var sources = sourcesMatch ? sourcesMatch[1].split('|').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+
+    // Render body paragraphs
+    bodyEl.innerHTML = '';
+    bodyText.split(/\n\n+/).forEach(function(para) {
+      if (para.trim()) {
+        var p = document.createElement('p');
+        p.textContent = para.trim();
+        bodyEl.appendChild(p);
+      }
+    });
+
+    // Render sources
+    if (sources.length) {
+      tagsEl.style.display = 'flex';
+      sources.forEach(function(src) {
+        var tag = document.createElement('span');
+        tag.className = 'source-tag';
+        tag.textContent = src;
+        tagsEl.appendChild(tag);
+      });
+    }
+
+  } catch (err) {
+    bodyEl.innerHTML = '<div class="error-msg">⚠ ' + err.message + '</div>';
+  } finally {
+    askBtn.disabled = false;
+    askBtn.textContent = 'Ask: "' + q.substring(0, 60) + (q.length > 60 ? '…' : '') + '"';
+  }
+}
+
+// ── Panel switching ──────────────────────────────────────────────────────────
+function switchPanel(id, navEl) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  navEl.classList.add('active');
+  var titles = {
+    kb:      ['Knowledge Base',            '1,204 documents · Last indexed 4 min ago'],
+    search:  ['Semantic Search',           'AI-powered search across all indexed documents'],
+    reports: ['Reports',                   '47 open · 3 urgent'],
+    coord:   ['Inter-Office Coordination', '4 active threads across 6 offices']
+  };
+  var t = titles[id] || ['Ordinance', ''];
+  document.getElementById('topbar-title').textContent = t[0];
+  document.getElementById('topbar-meta').textContent  = t[1];
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+buildGrids();
+initApiKey();
+</script>
+</body>
+</html>
