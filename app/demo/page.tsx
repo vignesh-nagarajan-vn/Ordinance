@@ -1,8 +1,28 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { KNOWLEDGE_BASE, type KbDoc } from "@/lib/knowledgeBase";
+import {
+  addUploadedDoc,
+  clearAudit,
+  docFromUpload,
+  getAudit,
+  getUploadedDocs,
+  logAudit,
+  removeUploadedDoc,
+  type AuditEntry,
+} from "@/lib/clientStore";
+import {
+  buildShareLink,
+  copyToClipboard,
+  downloadFile,
+  readShareLink,
+  resultToJSON,
+  resultToMarkdown,
+  type ExportableResult,
+} from "@/lib/exportShare";
 
-type PanelId = "kb" | "search" | "reports" | "coord";
+type PanelId = "kb" | "search" | "reports" | "coord" | "docs" | "audit";
 
 type QueryState = {
   value: string;
@@ -12,6 +32,8 @@ type QueryState = {
   paragraphs: string[];
   sources: string[];
   errored: boolean;
+  errorMsg: string;
+  answer: string;
 };
 
 const initialQuery: QueryState = {
@@ -22,163 +44,104 @@ const initialQuery: QueryState = {
   paragraphs: [],
   sources: [],
   errored: false,
+  errorMsg: "",
+  answer: "",
 };
 
 const TITLES: Record<PanelId, [string, string]> = {
-  kb: ["Knowledge Base", "1,204 documents"],
+  kb: ["Knowledge Base", "Live AI · Claude Haiku 4.5"],
   search: ["Semantic Search", "AI-powered search across all indexed documents"],
   reports: ["Reports", "47 open · 3 urgent"],
   coord: ["Inter-Agency Coordination", "4 active threads across 6 agencies"],
+  docs: ["Documents", "Upload office documents into the knowledge base"],
+  audit: ["Audit Trail", "Compliance log of all queries and actions"],
 };
 
-type KbDoc = {
-  id: string;
-  title: string;
-  type: string;
-  summary: string;
-  keywords: string[];
-};
+/* ------------------------------------------------------------------ */
+/* API helpers                                                         */
+/* ------------------------------------------------------------------ */
 
-const KNOWLEDGE_BASE: KbDoc[] = [
-  {
-    id: "EPA-HQ-OAR-2024-0041",
-    title: "Revised Air Quality Index Thresholds for PM2.5 (Final Rule)",
-    type: "Federal Register",
-    summary:
-      "Finalizes a tightening of the National Ambient Air Quality Standards (NAAQS) for fine particulate matter (PM2.5), lowering the annual primary standard from 12.0 μg/m³ to 9.0 μg/m³. Codified at 40 CFR Part 50; states must submit revised State Implementation Plans (SIPs) within 18 months of effective date. Guidance for nonattainment area designations follows in a separate notice.",
-    keywords: [
-      "pm2.5", "particulate", "air quality", "naaqs", "aqi", "epa", "sip",
-      "state implementation plan", "nonattainment", "clean air act", "caa",
-    ],
-  },
-  {
-    id: "EO 14168",
-    title: "EO 14168 — Strengthening Critical Infrastructure Resilience",
-    type: "Executive Order",
-    summary:
-      "Directs sector risk management agencies to update sector-specific resilience plans within 180 days, with priority on energy, water, and communications sectors. Establishes a White House coordinating council and requires CISA to publish baseline cybersecurity performance goals applicable across all 16 critical infrastructure sectors. Implementation is supervised under PPD-21 framework.",
-    keywords: [
-      "critical infrastructure", "resilience", "cisa", "cybersecurity",
-      "executive order", "ppd-21", "sector risk management", "white house",
-      "energy", "water", "communications",
-    ],
-  },
-  {
-    id: "CEQ-2025-GM-003",
-    title: "Interagency Permitting Coordination Under NEPA Reform Act",
-    type: "Guidance Memo",
-    summary:
-      "Implements the 2023 NEPA Reform Act amendments to 42 USC §4336, codifying single-lead-agency review for projects involving 2+ federal agencies. Establishes 2-year EIS and 1-year EA page and time limits, and requires agencies to publish concurrent NEPA schedules. Categorical exclusions may be adopted from cooperating agencies under 40 CFR §1501.4(d).",
-    keywords: [
-      "nepa", "permitting", "eis", "ea", "categorical exclusion",
-      "interagency", "lead agency", "ceq", "cooperating agency", "reform act",
-      "permit", "consultation",
-    ],
-  },
-  {
-    id: "CISA ED 25-02",
-    title: "CISA ED 25-02: Mitigation of Critical Vulnerability in ICS Systems",
-    type: "Emergency Directive",
-    summary:
-      "Requires federal civilian agencies to identify and patch CVE-2025-1147 in deployed industrial control systems (ICS) within 72 hours of detection. Mandates network segmentation per NIST SP 800-82 Rev 3, and requires submission of mitigation reports through the CyberScope portal. Applies to all FCEB agencies; recommended for state, local, tribal, and territorial entities.",
-    keywords: [
-      "cisa", "ics", "industrial control", "vulnerability", "cve",
-      "emergency directive", "patch", "cybersecurity", "fceb", "nist",
-      "segmentation",
-    ],
-  },
-  {
-    id: "EPA-HQ-OW-2025-0011",
-    title: "Proposed Rule: Drinking Water Standards for PFAS Compounds",
-    type: "Federal Register",
-    summary:
-      "Proposes enforceable Maximum Contaminant Levels (MCLs) under the Safe Drinking Water Act (42 USC §300g-1) of 4 parts per trillion for PFOA and PFOS, with a hazard index for mixtures of four additional PFAS compounds. Public water systems would have 3 years to comply with monitoring requirements and 5 years to install treatment if exceedances occur. Comment period: 60 days.",
-    keywords: [
-      "pfas", "pfoa", "pfos", "drinking water", "mcl", "safe drinking water act",
-      "sdwa", "epa", "contaminant", "groundwater", "monitoring",
-    ],
-  },
-  {
-    id: "OMB M-25-09",
-    title: "A-123 Update: Enterprise Risk Management Framework Rev. 4",
-    type: "OMB Circular",
-    summary:
-      "Updates OMB Circular A-123 to integrate Enterprise Risk Management (ERM) with internal control assessments. Requires agency CFOs to establish risk profiles aligned with strategic objectives, and report material risks to OMB annually. Aligns federal practice with COSO 2017 ERM framework and adds explicit cybersecurity and supply chain risk categories.",
-    keywords: [
-      "omb", "a-123", "enterprise risk management", "erm", "circular",
-      "internal controls", "cfo", "coso", "supply chain", "risk profile",
-    ],
-  },
-];
-
-function searchKnowledgeBase(query: string): KbDoc[] {
-  const tokens = query
-    .toLowerCase()
-    .replace(/[^a-z0-9\s.-]/g, " ")
-    .split(/\s+/)
-    .filter((t) => t.length > 2);
-  if (tokens.length === 0) return [];
-
-  const scored = KNOWLEDGE_BASE.map((doc) => {
-    const haystack = (
-      doc.title +
-      " " +
-      doc.summary +
-      " " +
-      doc.keywords.join(" ") +
-      " " +
-      doc.id +
-      " " +
-      doc.type
-    ).toLowerCase();
-    let score = 0;
-    for (const t of tokens) {
-      if (haystack.includes(t)) score += 1;
-      // bonus for exact keyword match
-      if (doc.keywords.some((k) => k === t || k.includes(t))) score += 1;
-    }
-    return { doc, score };
-  })
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score);
-
-  return scored.slice(0, 3).map((s) => s.doc);
-}
-
-function buildAnswer(query: string, hits: KbDoc[]): {
-  paragraphs: string[];
-  sources: string[];
-} {
-  if (hits.length === 0) {
-    return {
-      paragraphs: [
-        `No documents in the indexed knowledge base directly address "${query}". Try rephrasing with terms like NEPA, PFAS, PM2.5, NAAQS, ICS, ERM, or A-123, or browse the Recent Documents below.`,
-      ],
-      sources: [],
-    };
+async function apiQuery(
+  question: string,
+  uploadedDocs: KbDoc[]
+): Promise<{ answer: string; sources: string[] }> {
+  const res = await fetch("/api/query", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ question, uploadedDocs }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Request failed (${res.status}).`);
   }
-
-  const lead = hits[0];
-  const intro = `Based on ${hits.length} document${
-    hits.length > 1 ? "s" : ""
-  } in the indexed knowledge base, the most relevant guidance is ${lead.id} — ${lead.title}.`;
-
-  const body = hits.map((h) => `${h.id}: ${h.summary}`);
-  return {
-    paragraphs: [intro, ...body],
-    sources: hits.map((h) => h.id),
-  };
+  return { answer: data.answer ?? "", sources: data.sources ?? [] };
 }
+
+async function apiSummarize(
+  kind: "report" | "thread",
+  title: string,
+  content: string
+): Promise<string> {
+  const res = await fetch("/api/summarize", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ kind, title, content }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || `Request failed (${res.status}).`);
+  }
+  return data.summary ?? "";
+}
+
+function splitParagraphs(text: string): string[] {
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function DemoPage() {
   const [active, setActive] = useState<PanelId>("kb");
   const [kb, setKb] = useState<QueryState>(initialQuery);
   const [search, setSearch] = useState<QueryState>(initialQuery);
 
+  const [docs, setDocs] = useState<KbDoc[]>([]);
+  const [audit, setAudit] = useState<AuditEntry[]>([]);
+
   const kbRef = useRef<HTMLTextAreaElement | null>(null);
   const searchRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [topTitle, topMeta] = TITLES[active];
+
+  // Load browser-persisted state after mount (avoids SSR hydration mismatch).
+  useEffect(() => {
+    setDocs(getUploadedDocs());
+    setAudit(getAudit());
+
+    // If opened via a shared link, preload the result into the KB panel.
+    const shared = readShareLink();
+    if (shared) {
+      setKb({
+        ...initialQuery,
+        value: shared.query,
+        visible: true,
+        echo: `"${shared.query}"`,
+        paragraphs: splitParagraphs(shared.answer),
+        sources: shared.sources,
+        answer: shared.answer,
+      });
+      setActive("kb");
+    }
+  }, []);
+
+  const record = useCallback((action: string, detail: string) => {
+    setAudit(logAudit(action, detail));
+  }, []);
 
   function autoResize(el: HTMLTextAreaElement | null) {
     if (!el) return;
@@ -186,40 +149,55 @@ export default function DemoPage() {
     el.style.height = Math.min(el.scrollHeight, 120) + "px";
   }
 
-  async function runQuery(
-    state: QueryState,
-    setState: (s: QueryState) => void
-  ) {
-    const query = state.value.trim();
-    if (!query) return;
+  const runQuery = useCallback(
+    async (state: QueryState, setState: (s: QueryState) => void, label: string) => {
+      const query = state.value.trim();
+      if (!query) return;
 
-    setState({
-      ...state,
-      loading: true,
-      visible: true,
-      echo: `"${query}"`,
-      paragraphs: [],
-      sources: [],
-      errored: false,
-    });
+      record(label, query);
+      setState({
+        ...state,
+        loading: true,
+        visible: true,
+        echo: `"${query}"`,
+        paragraphs: [],
+        sources: [],
+        errored: false,
+        errorMsg: "",
+        answer: "",
+      });
 
-    // Simulated retrieval over the in-memory knowledge base. No external call —
-    // works fully on a static GitHub Pages deploy.
-    await new Promise((r) => setTimeout(r, 450));
-    const hits = searchKnowledgeBase(query);
-    const { paragraphs, sources } = buildAnswer(query, hits);
-
-    setState({
-      ...state,
-      value: query,
-      loading: false,
-      visible: true,
-      echo: `"${query}"`,
-      paragraphs,
-      sources,
-      errored: false,
-    });
-  }
+      try {
+        const { answer, sources } = await apiQuery(query, getUploadedDocs());
+        setState({
+          ...state,
+          value: query,
+          loading: false,
+          visible: true,
+          echo: `"${query}"`,
+          paragraphs: splitParagraphs(answer),
+          sources,
+          errored: false,
+          errorMsg: "",
+          answer,
+        });
+      } catch (err) {
+        setState({
+          ...state,
+          value: query,
+          loading: false,
+          visible: true,
+          echo: `"${query}"`,
+          paragraphs: [],
+          sources: [],
+          errored: true,
+          errorMsg: err instanceof Error ? err.message : "Something went wrong.",
+          answer: "",
+        });
+      }
+    },
+    [record]
+  );
 
   function handleEnter(
     e: React.KeyboardEvent<HTMLTextAreaElement>,
@@ -229,6 +207,27 @@ export default function DemoPage() {
       e.preventDefault();
       onRun();
     }
+  }
+
+  /* ---- Document upload handlers ---- */
+
+  async function handleUpload(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    for (const file of Array.from(files)) {
+      const text = await file.text();
+      const doc = docFromUpload(file.name, text);
+      setDocs(addUploadedDoc(doc));
+      record("document.upload", file.name);
+    }
+  }
+
+  function handleRemoveDoc(id: string, title: string) {
+    setDocs(removeUploadedDoc(id));
+    record("document.remove", title);
+  }
+
+  function handleClearAudit() {
+    setAudit(clearAudit());
   }
 
   return (
@@ -268,7 +267,7 @@ export default function DemoPage() {
             <NavItem
               icon="◈"
               label="Knowledge Base"
-              badge="1,204"
+              badge={String(KNOWLEDGE_BASE.length + docs.length)}
               activeNav={active === "kb"}
               onClick={() => setActive("kb")}
             />
@@ -277,6 +276,13 @@ export default function DemoPage() {
               label="Semantic Search"
               activeNav={active === "search"}
               onClick={() => setActive("search")}
+            />
+            <NavItem
+              icon="⬆"
+              label="Documents"
+              badge={docs.length ? String(docs.length) : undefined}
+              activeNav={active === "docs"}
+              onClick={() => setActive("docs")}
             />
 
             <div className="nav-section-label">Operations</div>
@@ -295,25 +301,14 @@ export default function DemoPage() {
               activeNav={active === "coord"}
               onClick={() => setActive("coord")}
             />
-            <NavItem
-              icon="◫"
-              label="Compliance"
-              activeNav={false}
-              onClick={() => setActive("kb")}
-            />
 
             <div className="nav-section-label">System</div>
             <NavItem
               icon="◌"
               label="Audit Trail"
-              activeNav={false}
-              onClick={() => setActive("kb")}
-            />
-            <NavItem
-              icon="⊡"
-              label="Settings"
-              activeNav={false}
-              onClick={() => setActive("kb")}
+              badge={audit.length ? String(audit.length) : undefined}
+              activeNav={active === "audit"}
+              onClick={() => setActive("audit")}
             />
           </nav>
 
@@ -343,8 +338,10 @@ export default function DemoPage() {
                 state={kb}
                 setState={setKb}
                 inputRef={kbRef}
-                onEnter={(e) => handleEnter(e, () => runQuery(kb, setKb))}
-                onRun={() => runQuery(kb, setKb)}
+                onEnter={(e) =>
+                  handleEnter(e, () => runQuery(kb, setKb, "query.kb"))
+                }
+                onRun={() => runQuery(kb, setKb, "query.kb")}
                 onAutoResize={() => autoResize(kbRef.current)}
                 primaryPlaceholder="e.g. What are the new PM2.5 air quality thresholds under the revised NAAQS?"
                 quickQueries={[
@@ -354,6 +351,8 @@ export default function DemoPage() {
                   "PFAS drinking water standards",
                 ]}
                 showRecentDocs
+                docCount={docs.length}
+                onExportLog={(detail) => record("result.export", detail)}
               />
             )}
 
@@ -363,9 +362,9 @@ export default function DemoPage() {
                 setState={setSearch}
                 inputRef={searchRef}
                 onEnter={(e) =>
-                  handleEnter(e, () => runQuery(search, setSearch))
+                  handleEnter(e, () => runQuery(search, setSearch, "query.search"))
                 }
-                onRun={() => runQuery(search, setSearch)}
+                onRun={() => runQuery(search, setSearch, "query.search")}
                 onAutoResize={() => autoResize(searchRef.current)}
                 primaryPlaceholder="e.g. How should agencies mitigate critical ICS vulnerabilities?"
                 quickQueries={[
@@ -374,17 +373,34 @@ export default function DemoPage() {
                   "NEPA categorical exclusion criteria",
                 ]}
                 showRecentDocs={false}
+                docCount={docs.length}
+                onExportLog={(detail) => record("result.export", detail)}
               />
             )}
 
-            {active === "reports" && <ReportsPanel />}
-            {active === "coord" && <CoordPanel />}
+            {active === "docs" && (
+              <DocsPanel
+                docs={docs}
+                onUpload={handleUpload}
+                onRemove={handleRemoveDoc}
+              />
+            )}
+
+            {active === "reports" && <ReportsPanel record={record} />}
+            {active === "coord" && <CoordPanel record={record} />}
+            {active === "audit" && (
+              <AuditPanel audit={audit} onClear={handleClearAudit} />
+            )}
           </div>
         </main>
       </div>
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Sidebar item                                                        */
+/* ------------------------------------------------------------------ */
 
 function NavItem({
   icon,
@@ -410,13 +426,15 @@ function NavItem({
     >
       <span className="nav-icon">{icon}</span> {label}
       {badge && (
-        <span className={`nav-badge${badgeAlert ? " alert" : ""}`}>
-          {badge}
-        </span>
+        <span className={`nav-badge${badgeAlert ? " alert" : ""}`}>{badge}</span>
       )}
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Knowledge Base / Semantic Search panel                              */
+/* ------------------------------------------------------------------ */
 
 function KbPanel({
   state,
@@ -428,6 +446,8 @@ function KbPanel({
   primaryPlaceholder,
   quickQueries,
   showRecentDocs,
+  docCount,
+  onExportLog,
 }: {
   state: QueryState;
   setState: (s: QueryState) => void;
@@ -438,13 +458,18 @@ function KbPanel({
   primaryPlaceholder: string;
   quickQueries: string[];
   showRecentDocs: boolean;
+  docCount: number;
+  onExportLog: (detail: string) => void;
 }) {
   return (
     <div className="panel active">
       <div className="kb-notice" role="note">
-        <span className="kb-notice-icon" aria-hidden="true">!</span>
+        <span className="kb-notice-icon" aria-hidden="true">★</span>
         <span className="kb-notice-text">
-          Currently, this demo is simply a way to query a knowledge base — currently, full of public Congressional documents. This will evolve to rely on a custom-trained hosted AI instance.
+          Answers are generated live by Claude Haiku 4.5 over a retrieval-augmented
+          knowledge base of public government documents
+          {docCount > 0 ? ` plus ${docCount} document${docCount > 1 ? "s" : ""} you uploaded` : ""}.
+          Every claim is grounded in cited sources.
         </span>
       </div>
       <div className="kb-search-area">
@@ -466,11 +491,7 @@ function KbPanel({
             }}
             onKeyDown={onEnter}
           />
-          <button
-            className="search-btn"
-            onClick={onRun}
-            disabled={state.loading}
-          >
+          <button className="search-btn" onClick={onRun} disabled={state.loading}>
             {state.loading ? "Querying…" : "Query →"}
           </button>
         </div>
@@ -504,10 +525,10 @@ function KbPanel({
                   <span></span>
                   <span></span>
                 </div>
-                Searching knowledge base…
+                Retrieving sources and generating answer…
               </div>
             ) : state.errored ? (
-              <p>Error connecting to knowledge base. Please try again.</p>
+              <p className="ai-error">{state.errorMsg}</p>
             ) : (
               state.paragraphs.map((para, i) => (
                 <p key={i} style={{ marginBottom: 10 }}>
@@ -516,6 +537,7 @@ function KbPanel({
               ))
             )}
           </div>
+
           {state.sources.length > 0 && (
             <div className="source-tags" style={{ display: "flex" }}>
               {state.sources.map((s, i) => (
@@ -524,6 +546,18 @@ function KbPanel({
                 </span>
               ))}
             </div>
+          )}
+
+          {!state.loading && !state.errored && state.answer && (
+            <ExportBar
+              result={{
+                query: state.value,
+                answer: state.answer,
+                sources: state.sources,
+                timestamp: Date.now(),
+              }}
+              onExportLog={onExportLog}
+            />
           )}
         </div>
       )}
@@ -535,45 +569,106 @@ function KbPanel({
             <span className="section-link">Browse all →</span>
           </div>
           <div className="doc-grid">
-            <DocCard
-              type="Federal Register"
-              dotColor="var(--info)"
-              title="Revised Air Quality Index Thresholds for PM2.5 (Final Rule)"
-              meta={["EPA-HQ-OAR-2024-0041", "Mar 14, 2025"]}
-            />
-            <DocCard
-              type="Executive Order"
-              dotColor="var(--gold)"
-              title="EO 14168 — Strengthening Critical Infrastructure Resilience"
-              meta={["White House", "Jan 20, 2025"]}
-            />
-            <DocCard
-              type="Guidance Memo"
-              dotColor="var(--success)"
-              title="Interagency Permitting Coordination Under NEPA Reform Act"
-              meta={["CEQ-2025-GM-003", "Feb 28, 2025"]}
-            />
-            <DocCard
-              type="Emergency Directive"
-              dotColor="var(--danger)"
-              title="CISA ED 25-02: Mitigation of Critical Vulnerability in ICS Systems"
-              meta={["CISA", "Apr 3, 2025"]}
-            />
-            <DocCard
-              type="Federal Register"
-              dotColor="var(--info)"
-              title="Proposed Rule: Drinking Water Standards for PFAS Compounds"
-              meta={["EPA-HQ-OW-2025-0011", "Apr 18, 2025"]}
-            />
-            <DocCard
-              type="OMB Circular"
-              dotColor="#7a5c9e"
-              title="A-123 Update: Enterprise Risk Management Framework Rev. 4"
-              meta={["OMB M-25-09", "Mar 30, 2025"]}
-            />
+            {KNOWLEDGE_BASE.map((doc) => (
+              <DocCard
+                key={doc.id}
+                type={doc.type}
+                dotColor={dotForType(doc.type)}
+                title={doc.title}
+                meta={[doc.id, doc.date ?? ""]}
+              />
+            ))}
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function dotForType(type: string): string {
+  switch (type) {
+    case "Executive Order":
+      return "var(--gold)";
+    case "Guidance Memo":
+      return "var(--success)";
+    case "Emergency Directive":
+      return "var(--danger)";
+    case "OMB Circular":
+      return "#7a5c9e";
+    case "Uploaded Document":
+      return "var(--gold-muted)";
+    default:
+      return "var(--info)";
+  }
+}
+
+/* ---- Export / share bar ---- */
+
+function ExportBar({
+  result,
+  onExportLog,
+}: {
+  result: ExportableResult;
+  onExportLog: (detail: string) => void;
+}) {
+  const [flash, setFlash] = useState("");
+
+  function announce(msg: string) {
+    setFlash(msg);
+    window.setTimeout(() => setFlash(""), 1800);
+  }
+
+  return (
+    <div className="export-bar">
+      <span className="export-label">Export</span>
+      <button
+        className="export-btn"
+        onClick={async () => {
+          const ok = await copyToClipboard(result.answer);
+          announce(ok ? "Copied answer" : "Copy failed");
+          onExportLog("copy answer");
+        }}
+      >
+        Copy
+      </button>
+      <button
+        className="export-btn"
+        onClick={() => {
+          downloadFile(
+            "ordinance-result.md",
+            resultToMarkdown(result),
+            "text/markdown"
+          );
+          onExportLog("download markdown");
+        }}
+      >
+        Markdown
+      </button>
+      <button
+        className="export-btn"
+        onClick={() => {
+          downloadFile(
+            "ordinance-result.json",
+            resultToJSON(result),
+            "application/json"
+          );
+          onExportLog("download json");
+        }}
+      >
+        JSON
+      </button>
+      <button
+        className="export-btn"
+        onClick={async () => {
+          const link = buildShareLink(result);
+          const ok = await copyToClipboard(link);
+          announce(ok ? "Share link copied" : "Copy failed");
+          onExportLog("share link");
+        }}
+      >
+        Share link
+      </button>
+      {flash && <span className="export-flash">{flash}</span>}
     </div>
   );
 }
@@ -597,7 +692,7 @@ function DocCard({
       </div>
       <div className="doc-card-title">{title}</div>
       <div className="doc-card-meta">
-        {meta.map((m, i) => (
+        {meta.filter(Boolean).map((m, i) => (
           <span key={i}>{m}</span>
         ))}
       </div>
@@ -605,85 +700,185 @@ function DocCard({
   );
 }
 
-function ReportsPanel() {
-  const reports: {
-    title: string;
-    id: string;
-    agency: string;
-    status: "urgent" | "review" | "open" | "closed";
-    statusLabel: string;
-    priority: number;
-    priorityColor: string;
-    due: string;
-    assignee: string;
-  }[] = [
-    {
-      title: "Quarterly Air Permit Compliance Report",
-      id: "RPT-2025-0441",
-      agency: "EPA Region 9",
-      status: "urgent",
-      statusLabel: "Urgent",
-      priority: 9,
-      priorityColor: "var(--danger)",
-      due: "May 7",
-      assignee: "J. Reyes",
-    },
-    {
-      title: "PFAS Groundwater Monitoring — Site Delta",
-      id: "RPT-2025-0438",
-      agency: "EPA / DoD",
-      status: "review",
-      statusLabel: "In Review",
-      priority: 7,
-      priorityColor: "var(--warning)",
-      due: "May 15",
-      assignee: "M. Chen",
-    },
-    {
-      title: "Wetland Mitigation Bank Annual Report",
-      id: "RPT-2025-0429",
-      agency: "USACE / EPA",
-      status: "open",
-      statusLabel: "Active",
-      priority: 5,
-      priorityColor: "var(--success)",
-      due: "May 30",
-      assignee: "T. Park",
-    },
-    {
-      title: "Tribal Consultation Documentation — NM Pipeline",
-      id: "RPT-2025-0421",
-      agency: "BIA / FERC",
-      status: "urgent",
-      statusLabel: "Urgent",
-      priority: 8,
-      priorityColor: "var(--danger)",
-      due: "May 9",
-      assignee: "A. Morales",
-    },
-    {
-      title: "Section 7 Consultation — ESA Salmon Habitat",
-      id: "RPT-2025-0414",
-      agency: "NMFS / EPA",
-      status: "review",
-      statusLabel: "In Review",
-      priority: 6,
-      priorityColor: "var(--warning)",
-      due: "Jun 1",
-      assignee: "S. Johnson",
-    },
-    {
-      title: "CERCLA 5-Year Review — Superfund Site 88",
-      id: "RPT-2025-0398",
-      agency: "EPA OLEM",
-      status: "closed",
-      statusLabel: "Closed",
-      priority: 3,
-      priorityColor: "var(--text-faint)",
-      due: "Apr 25 ✓",
-      assignee: "B. Williams",
-    },
-  ];
+/* ------------------------------------------------------------------ */
+/* Documents panel (upload)                                            */
+/* ------------------------------------------------------------------ */
+
+function DocsPanel({
+  docs,
+  onUpload,
+  onRemove,
+}: {
+  docs: KbDoc[];
+  onUpload: (files: FileList | null) => void;
+  onRemove: (id: string, title: string) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  return (
+    <div className="panel active">
+      <div className="kb-notice" role="note">
+        <span className="kb-notice-icon" aria-hidden="true">★</span>
+        <span className="kb-notice-text">
+          Upload office-specific documents (memos, committee reports, correspondence).
+          They are added to the knowledge base and retrieved alongside the built-in
+          corpus when you query. Text files (.txt, .md) are stored in your browser
+          for this demo.
+        </span>
+      </div>
+
+      <div
+        className={`upload-zone${dragging ? " dragging" : ""}`}
+        onClick={() => fileRef.current?.click()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          onUpload(e.dataTransfer.files);
+        }}
+        role="button"
+        tabIndex={0}
+      >
+        <div className="upload-icon">⬆</div>
+        <div className="upload-title">Drop files here or click to upload</div>
+        <div className="upload-sub">.txt and .md files</div>
+        <input
+          ref={fileRef}
+          className="upload-input"
+          type="file"
+          accept=".txt,.md,.markdown,text/plain,text/markdown"
+          multiple
+          onChange={(e) => {
+            onUpload(e.target.files);
+            e.target.value = "";
+          }}
+        />
+      </div>
+
+      <div className="section-header">
+        <span className="section-title">
+          Uploaded Documents ({docs.length})
+        </span>
+      </div>
+
+      {docs.length === 0 ? (
+        <div className="empty-state">
+          No documents uploaded yet. Uploaded documents become queryable in the
+          Knowledge Base and Semantic Search panels.
+        </div>
+      ) : (
+        <div className="doc-list">
+          {docs.map((d) => (
+            <div className="doc-row" key={d.id}>
+              <div className="doc-type-dot" style={{ background: dotForType(d.type) }} />
+              <div className="doc-row-body">
+                <div className="doc-row-title">{d.title}</div>
+                <div className="doc-row-meta">
+                  <span>{d.id}</span>
+                  <span>{d.date}</span>
+                  <span>{d.summary.length} chars indexed</span>
+                </div>
+              </div>
+              <button
+                className="doc-remove"
+                onClick={() => onRemove(d.id, d.title)}
+                aria-label={`Remove ${d.title}`}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Reports panel (functional)                                          */
+/* ------------------------------------------------------------------ */
+
+type Report = {
+  title: string;
+  id: string;
+  agency: string;
+  status: "urgent" | "review" | "open" | "closed";
+  statusLabel: string;
+  priority: number;
+  priorityColor: string;
+  due: string;
+  assignee: string;
+};
+
+const REPORTS: Report[] = [
+  { title: "Quarterly Air Permit Compliance Report", id: "RPT-2025-0441", agency: "EPA Region 9", status: "urgent", statusLabel: "Urgent", priority: 9, priorityColor: "var(--danger)", due: "May 7", assignee: "J. Reyes" },
+  { title: "PFAS Groundwater Monitoring — Site Delta", id: "RPT-2025-0438", agency: "EPA / DoD", status: "review", statusLabel: "In Review", priority: 7, priorityColor: "var(--warning)", due: "May 15", assignee: "M. Chen" },
+  { title: "Wetland Mitigation Bank Annual Report", id: "RPT-2025-0429", agency: "USACE / EPA", status: "open", statusLabel: "Active", priority: 5, priorityColor: "var(--success)", due: "May 30", assignee: "T. Park" },
+  { title: "Tribal Consultation Documentation — NM Pipeline", id: "RPT-2025-0421", agency: "BIA / FERC", status: "urgent", statusLabel: "Urgent", priority: 8, priorityColor: "var(--danger)", due: "May 9", assignee: "A. Morales" },
+  { title: "Section 7 Consultation — ESA Salmon Habitat", id: "RPT-2025-0414", agency: "NMFS / EPA", status: "review", statusLabel: "In Review", priority: 6, priorityColor: "var(--warning)", due: "Jun 1", assignee: "S. Johnson" },
+  { title: "CERCLA 5-Year Review — Superfund Site 88", id: "RPT-2025-0398", agency: "EPA OLEM", status: "closed", statusLabel: "Closed", priority: 3, priorityColor: "var(--text-faint)", due: "Apr 25 ✓", assignee: "B. Williams" },
+];
+
+type SummaryState = { loading: boolean; text: string; error: string };
+
+function ReportsPanel({
+  record,
+}: {
+  record: (action: string, detail: string) => void;
+}) {
+  const [statusFilter, setStatusFilter] = useState<"all" | Report["status"]>("all");
+  const [sortBy, setSortBy] = useState<"none" | "priority" | "title">("none");
+  const [search, setSearch] = useState("");
+  const [summaries, setSummaries] = useState<Record<string, SummaryState>>({});
+
+  let rows = REPORTS.filter((r) => {
+    if (statusFilter !== "all" && r.status !== statusFilter) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      if (
+        !(
+          r.title.toLowerCase().includes(q) ||
+          r.agency.toLowerCase().includes(q) ||
+          r.assignee.toLowerCase().includes(q) ||
+          r.id.toLowerCase().includes(q)
+        )
+      )
+        return false;
+    }
+    return true;
+  });
+
+  if (sortBy === "priority") {
+    rows = [...rows].sort((a, b) => b.priority - a.priority);
+  } else if (sortBy === "title") {
+    rows = [...rows].sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  async function summarize(r: Report) {
+    setSummaries((s) => ({ ...s, [r.id]: { loading: true, text: "", error: "" } }));
+    record("report.summarize", r.id);
+    try {
+      const content = `Report: ${r.title} (${r.id})\nAgency: ${r.agency}\nStatus: ${r.statusLabel}\nPriority: ${r.priority}/10\nDue: ${r.due}\nAssignee: ${r.assignee}`;
+      const text = await apiSummarize("report", r.title, content);
+      setSummaries((s) => ({ ...s, [r.id]: { loading: false, text, error: "" } }));
+    } catch (err) {
+      setSummaries((s) => ({
+        ...s,
+        [r.id]: {
+          loading: false,
+          text: "",
+          error: err instanceof Error ? err.message : "Failed.",
+        },
+      }));
+    }
+  }
+
+  const statuses: ("all" | Report["status"])[] = ["all", "urgent", "review", "open", "closed"];
 
   return (
     <div className="panel active">
@@ -691,59 +886,47 @@ function ReportsPanel() {
         <Stat label="Open Reports" value="47" delta="↑ 5 this week" />
         <Stat
           label="Avg Resolution"
-          value={
-            <>
-              8.2
-              <span style={{ fontSize: 14, color: "var(--text-faint)" }}>d</span>
-            </>
-          }
+          value={<>8.2<span style={{ fontSize: 14, color: "var(--text-faint)" }}>d</span></>}
           delta="↓ 1.4d improvement"
         />
-        <Stat
-          label="Agencies Involved"
-          value="14"
-          delta="across 3 regions"
-          deltaColor="var(--text-faint)"
-        />
+        <Stat label="Agencies Involved" value="14" delta="across 3 regions" deltaColor="var(--text-faint)" />
         <Stat
           label="Compliance Rate"
-          value={
-            <>
-              94
-              <span style={{ fontSize: 14, color: "var(--text-faint)" }}>%</span>
-            </>
-          }
+          value={<>94<span style={{ fontSize: 14, color: "var(--text-faint)" }}>%</span></>}
           delta="↑ 2.1% vs last qtr"
         />
       </div>
 
-      <div className="section-header">
-        <span className="section-title">Active Reports</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            className="btn btn-ghost"
-            style={{ fontSize: 11, padding: "4px 10px" }}
-          >
-            Filter
-          </button>
-          <button
-            className="btn btn-ghost"
-            style={{ fontSize: 11, padding: "4px 10px" }}
-          >
-            Sort ↕
-          </button>
+      <div className="filter-bar">
+        <input
+          className="filter-input"
+          placeholder="Search reports…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="filter-chips">
+          {statuses.map((s) => (
+            <button
+              key={s}
+              className={`filter-chip${statusFilter === s ? " active" : ""}`}
+              onClick={() => setStatusFilter(s)}
+            >
+              {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
         </div>
+        <select
+          className="filter-select"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+        >
+          <option value="none">Sort: default</option>
+          <option value="priority">Sort: priority</option>
+          <option value="title">Sort: title</option>
+        </select>
       </div>
 
-      <div
-        style={{
-          background: "var(--cream-card)",
-          border: "1px solid var(--border)",
-          borderRadius: 8,
-          overflow: "hidden",
-          marginBottom: 24,
-        }}
-      >
+      <div className="table-wrap">
         <table className="report-table">
           <thead>
             <tr>
@@ -753,49 +936,63 @@ function ReportsPanel() {
               <th>Priority</th>
               <th>Due</th>
               <th>Assignee</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {reports.map((r) => (
-              <tr key={r.id}>
-                <td>
-                  <div>{r.title}</div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "var(--text-faint)",
-                      marginTop: 2,
-                    }}
-                  >
-                    {r.id}
-                  </div>
+            {rows.map((r) => {
+              const sum = summaries[r.id];
+              return (
+                <Fragment key={r.id}>
+                  <tr>
+                    <td>
+                      <div>{r.title}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>{r.id}</div>
+                    </td>
+                    <td>{r.agency}</td>
+                    <td>
+                      <span className={`status-pill status-${r.status}`}>{r.statusLabel}</span>
+                    </td>
+                    <td>
+                      <div className="priority-bar">
+                        <div className="priority-track">
+                          <div className="priority-fill" style={{ width: `${r.priority * 10}%`, background: r.priorityColor }}></div>
+                        </div>
+                        <span style={{ fontSize: 11, color: r.priorityColor }}>{r.priority}/10</span>
+                      </div>
+                    </td>
+                    <td style={{ fontSize: 12 }}>{r.due}</td>
+                    <td>{r.assignee}</td>
+                    <td>
+                      <button
+                        className="row-ai-btn"
+                        onClick={() => summarize(r)}
+                        disabled={sum?.loading}
+                      >
+                        {sum?.loading ? "…" : "Summarize"}
+                      </button>
+                    </td>
+                  </tr>
+                  {sum && (sum.text || sum.error) && (
+                    <tr>
+                      <td colSpan={7} style={{ paddingTop: 0 }}>
+                        <div className={`ai-summary${sum.error ? " error" : ""}`}>
+                          <span className="ai-summary-head">AI summary</span>
+                          {sum.error ? sum.error : sum.text}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={7}>
+                  <div className="empty-state">No reports match your filters.</div>
                 </td>
-                <td>{r.agency}</td>
-                <td>
-                  <span className={`status-pill status-${r.status}`}>
-                    {r.statusLabel}
-                  </span>
-                </td>
-                <td>
-                  <div className="priority-bar">
-                    <div className="priority-track">
-                      <div
-                        className="priority-fill"
-                        style={{
-                          width: `${r.priority * 10}%`,
-                          background: r.priorityColor,
-                        }}
-                      ></div>
-                    </div>
-                    <span style={{ fontSize: 11, color: r.priorityColor }}>
-                      {r.priority}/10
-                    </span>
-                  </div>
-                </td>
-                <td style={{ fontSize: 12 }}>{r.due}</td>
-                <td>{r.assignee}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -828,110 +1025,190 @@ function Stat({
   );
 }
 
-function CoordPanel() {
+/* ------------------------------------------------------------------ */
+/* Coordination panel (functional)                                     */
+/* ------------------------------------------------------------------ */
+
+type Thread = {
+  id: string;
+  unread?: boolean;
+  tags: { label: string; bg: string; color: string }[];
+  title: string;
+  preview: string;
+  status: "urgent" | "review" | "open" | "closed";
+  statusLabel: string;
+  messages: string;
+  ago: string;
+};
+
+const TAG = {
+  EPA: { bg: "rgba(46,90,122,0.1)", color: "var(--info)" },
+  USACE: { bg: "rgba(184,134,11,0.1)", color: "var(--gold-btn)" },
+  DOI: { bg: "rgba(74,124,89,0.1)", color: "var(--success)" },
+  FERC: { bg: "rgba(122,92,158,0.1)", color: "#7a5c9e" },
+  DoD: { bg: "rgba(139,58,46,0.1)", color: "var(--danger)" },
+  NMFS: { bg: "rgba(74,124,89,0.1)", color: "var(--success)" },
+} as const;
+
+function tag(label: keyof typeof TAG) {
+  return { label, ...TAG[label] };
+}
+
+const THREADS: Thread[] = [
+  {
+    id: "TH-1",
+    unread: true,
+    tags: [tag("EPA"), tag("USACE")],
+    title: "Section 404 / Section 401 Joint Review — Rillito Wetland Restoration",
+    preview:
+      "USACE requested EPA water quality cert. EPA Region 9 flagged potential ESA Section 7 trigger — awaiting NMFS consultation status from DoI liaison before proceeding.",
+    status: "review",
+    statusLabel: "In Review",
+    messages: "14 messages",
+    ago: "2h ago",
+  },
+  {
+    id: "TH-2",
+    unread: true,
+    tags: [tag("EPA"), tag("DOI"), tag("FERC")],
+    title: "NM Pipeline Project — Tribal Consultation & Environmental Review",
+    preview:
+      "Three-agency coordination on NHPA Section 106, NEPA EIS, and tribal consultation timelines. BIA lead has requested 30-day extension for sovereign nation review period.",
+    status: "urgent",
+    statusLabel: "Urgent",
+    messages: "31 messages",
+    ago: "45m ago",
+  },
+  {
+    id: "TH-3",
+    tags: [tag("EPA"), tag("DoD")],
+    title: "PFAS Remediation Cost-Share Agreement — Tucson AFB Adjacent Sites",
+    preview:
+      "EPA and DoD resolving cost allocation under CERCLA for PFAS plume originating at Air Force installation. Draft MOA under legal review at both agencies.",
+    status: "open",
+    statusLabel: "Active",
+    messages: "22 messages",
+    ago: "yesterday",
+  },
+  {
+    id: "TH-4",
+    tags: [tag("USACE"), tag("NMFS")],
+    title: "Biological Opinion — Yuma Irrigation District Diversion Structure",
+    preview:
+      "BiOp issued with Reasonable and Prudent Alternatives. USACE confirming Section 404 permit conditions align with NMFS RPAs. Final coordination memo due May 20.",
+    status: "review",
+    statusLabel: "In Review",
+    messages: "9 messages",
+    ago: "3 days ago",
+  },
+];
+
+function CoordPanel({
+  record,
+}: {
+  record: (action: string, detail: string) => void;
+}) {
+  const [agency, setAgency] = useState<string>("all");
+  const [search, setSearch] = useState("");
+  const [summaries, setSummaries] = useState<Record<string, SummaryState>>({});
+
+  const agencies = ["all", ...Object.keys(TAG)];
+
+  const threads = THREADS.filter((t) => {
+    if (agency !== "all" && !t.tags.some((x) => x.label === agency)) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      if (!(t.title.toLowerCase().includes(q) || t.preview.toLowerCase().includes(q)))
+        return false;
+    }
+    return true;
+  });
+
+  async function summarize(t: Thread) {
+    setSummaries((s) => ({ ...s, [t.id]: { loading: true, text: "", error: "" } }));
+    record("thread.summarize", t.id);
+    try {
+      const content = `Thread: ${t.title}\nAgencies: ${t.tags.map((x) => x.label).join(", ")}\nStatus: ${t.statusLabel}\nActivity: ${t.messages}, last ${t.ago}\nLatest update: ${t.preview}`;
+      const text = await apiSummarize("thread", t.title, content);
+      setSummaries((s) => ({ ...s, [t.id]: { loading: false, text, error: "" } }));
+    } catch (err) {
+      setSummaries((s) => ({
+        ...s,
+        [t.id]: { loading: false, text: "", error: err instanceof Error ? err.message : "Failed." },
+      }));
+    }
+  }
+
   return (
     <div className="panel active">
       <div className="agency-grid">
-        <AgencyCard
-          tag="EPA"
-          tagBg="rgba(46,90,122,0.1)"
-          tagColor="var(--info)"
-          tagBorder="rgba(46,90,122,0.2)"
-          name="Environmental Protection"
-          dept="Region 9 — Southwest"
-          metrics={[
-            { val: "12", label: "open items" },
-            { val: "94%", label: "response rate", color: "var(--success)" },
-          ]}
-        />
-        <AgencyCard
-          tag="DOI"
-          tagBg="rgba(74,124,89,0.1)"
-          tagColor="var(--success)"
-          tagBorder="rgba(74,124,89,0.2)"
-          name="Dept. of the Interior"
-          dept="Bureau of Indian Affairs"
-          metrics={[
-            { val: "5", label: "open items" },
-            { val: "78%", label: "response rate", color: "var(--warning)" },
-          ]}
-        />
-        <AgencyCard
-          tag="USACE"
-          tagBg="rgba(184,134,11,0.1)"
-          tagColor="var(--gold-btn)"
-          tagBorder="rgba(184,134,11,0.2)"
-          name="Army Corps of Engineers"
-          dept="Los Angeles District"
-          metrics={[
-            { val: "8", label: "open items" },
-            { val: "91%", label: "response rate", color: "var(--success)" },
-          ]}
-        />
+        <AgencyCard tag="EPA" tagBg="rgba(46,90,122,0.1)" tagColor="var(--info)" tagBorder="rgba(46,90,122,0.2)" name="Environmental Protection" dept="Region 9 — Southwest" metrics={[{ val: "12", label: "open items" }, { val: "94%", label: "response rate", color: "var(--success)" }]} />
+        <AgencyCard tag="DOI" tagBg="rgba(74,124,89,0.1)" tagColor="var(--success)" tagBorder="rgba(74,124,89,0.2)" name="Dept. of the Interior" dept="Bureau of Indian Affairs" metrics={[{ val: "5", label: "open items" }, { val: "78%", label: "response rate", color: "var(--warning)" }]} />
+        <AgencyCard tag="USACE" tagBg="rgba(184,134,11,0.1)" tagColor="var(--gold-btn)" tagBorder="rgba(184,134,11,0.2)" name="Army Corps of Engineers" dept="Los Angeles District" metrics={[{ val: "8", label: "open items" }, { val: "91%", label: "response rate", color: "var(--success)" }]} />
       </div>
 
-      <div className="section-header" style={{ marginBottom: 12 }}>
-        <span className="section-title">Active Coordination Threads</span>
-        <button
-          className="btn btn-gold"
-          style={{ fontSize: 11, padding: "5px 12px" }}
-        >
-          + New Thread
-        </button>
+      <div className="filter-bar">
+        <input
+          className="filter-input"
+          placeholder="Search threads…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="filter-chips">
+          {agencies.map((a) => (
+            <button
+              key={a}
+              className={`filter-chip${agency === a ? " active" : ""}`}
+              onClick={() => setAgency(a)}
+            >
+              {a === "all" ? "All agencies" : a}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="thread-list">
-        <Thread
-          unread
-          tags={[
-            { label: "EPA", bg: "rgba(46,90,122,0.1)", color: "var(--info)" },
-            { label: "USACE", bg: "rgba(184,134,11,0.1)", color: "var(--gold-btn)" },
-          ]}
-          title="Section 404 / Section 401 Joint Review — Rillito Wetland Restoration"
-          preview="USACE requested EPA water quality cert. EPA Region 9 flagged potential ESA Section 7 trigger — awaiting NMFS consultation status from DoI liaison before proceeding."
-          status="review"
-          statusLabel="In Review"
-          messages="14 messages"
-          ago="2h ago"
-        />
-        <Thread
-          unread
-          tags={[
-            { label: "EPA", bg: "rgba(46,90,122,0.1)", color: "var(--info)" },
-            { label: "DOI", bg: "rgba(74,124,89,0.1)", color: "var(--success)" },
-            { label: "FERC", bg: "rgba(122,92,158,0.1)", color: "#7a5c9e" },
-          ]}
-          title="NM Pipeline Project — Tribal Consultation & Environmental Review"
-          preview="Three-agency coordination on NHPA Section 106, NEPA EIS, and tribal consultation timelines. BIA lead has requested 30-day extension for sovereign nation review period."
-          status="urgent"
-          statusLabel="Urgent"
-          messages="31 messages"
-          ago="45m ago"
-        />
-        <Thread
-          tags={[
-            { label: "EPA", bg: "rgba(46,90,122,0.1)", color: "var(--info)" },
-            { label: "DoD", bg: "rgba(139,58,46,0.1)", color: "var(--danger)" },
-          ]}
-          title="PFAS Remediation Cost-Share Agreement — Tucson AFB Adjacent Sites"
-          preview="EPA and DoD resolving cost allocation under CERCLA for PFAS plume originating at Air Force installation. Draft MOA under legal review at both agencies."
-          status="open"
-          statusLabel="Active"
-          messages="22 messages"
-          ago="yesterday"
-        />
-        <Thread
-          tags={[
-            { label: "USACE", bg: "rgba(184,134,11,0.1)", color: "var(--gold-btn)" },
-            { label: "NMFS", bg: "rgba(74,124,89,0.1)", color: "var(--success)" },
-          ]}
-          title="Biological Opinion — Yuma Irrigation District Diversion Structure"
-          preview="BiOp issued with Reasonable and Prudent Alternatives. USACE confirming Section 404 permit conditions align with NMFS RPAs. Final coordination memo due May 20."
-          status="review"
-          statusLabel="In Review"
-          messages="9 messages"
-          ago="3 days ago"
-        />
+        {threads.map((t) => {
+          const sum = summaries[t.id];
+          return (
+            <div className="thread-item" key={t.id}>
+              {t.unread && <div className="thread-unread"></div>}
+              <div className="thread-agencies">
+                {t.tags.map((x, i) => (
+                  <div key={i} className="thread-agency-tag" style={{ background: x.bg, color: x.color }}>
+                    {x.label}
+                  </div>
+                ))}
+              </div>
+              <div className="thread-body">
+                <div className="thread-title">{t.title}</div>
+                <div className="thread-preview">{t.preview}</div>
+                <div className="thread-meta">
+                  <span className={`status-pill status-${t.status}`}>{t.statusLabel}</span>
+                  <span>{t.messages}</span>
+                  <span>{t.ago}</span>
+                  <button
+                    className="row-ai-btn"
+                    onClick={() => summarize(t)}
+                    disabled={sum?.loading}
+                    style={{ marginLeft: "auto" }}
+                  >
+                    {sum?.loading ? "Summarizing…" : "AI summarize"}
+                  </button>
+                </div>
+                {sum && (sum.text || sum.error) && (
+                  <div className={`ai-summary${sum.error ? " error" : ""}`}>
+                    <span className="ai-summary-head">AI summary</span>
+                    {sum.error ? sum.error : sum.text}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        {threads.length === 0 && (
+          <div className="empty-state">No threads match your filters.</div>
+        )}
       </div>
     </div>
   );
@@ -957,14 +1234,7 @@ function AgencyCard({
   return (
     <div className="agency-card">
       <div className="agency-card-header">
-        <div
-          className="agency-icon"
-          style={{
-            background: tagBg,
-            color: tagColor,
-            border: `1px solid ${tagBorder}`,
-          }}
-        >
+        <div className="agency-icon" style={{ background: tagBg, color: tagColor, border: `1px solid ${tagBorder}` }}>
           {tag}
         </div>
         <div>
@@ -975,12 +1245,7 @@ function AgencyCard({
       <div className="agency-metrics">
         {metrics.map((m, i) => (
           <div key={i}>
-            <div
-              className="agency-metric-val"
-              style={m.color ? { color: m.color } : undefined}
-            >
-              {m.val}
-            </div>
+            <div className="agency-metric-val" style={m.color ? { color: m.color } : undefined}>{m.val}</div>
             <div className="agency-metric-lbl">{m.label}</div>
           </div>
         ))}
@@ -989,51 +1254,74 @@ function AgencyCard({
   );
 }
 
-function Thread({
-  unread,
-  tags,
-  title,
-  preview,
-  status,
-  statusLabel,
-  messages,
-  ago,
+/* ------------------------------------------------------------------ */
+/* Audit Trail panel                                                   */
+/* ------------------------------------------------------------------ */
+
+function AuditPanel({
+  audit,
+  onClear,
 }: {
-  unread?: boolean;
-  tags: { label: string; bg: string; color: string }[];
-  title: string;
-  preview: string;
-  status: "urgent" | "review" | "open" | "closed";
-  statusLabel: string;
-  messages: string;
-  ago: string;
+  audit: AuditEntry[];
+  onClear: () => void;
 }) {
   return (
-    <div className="thread-item">
-      {unread && <div className="thread-unread"></div>}
-      <div className="thread-agencies">
-        {tags.map((t, i) => (
-          <div
-            key={i}
-            className="thread-agency-tag"
-            style={{ background: t.bg, color: t.color }}
-          >
-            {t.label}
-          </div>
-        ))}
+    <div className="panel active">
+      <div className="kb-notice" role="note">
+        <span className="kb-notice-icon" aria-hidden="true">★</span>
+        <span className="kb-notice-text">
+          Every query and action is logged here for compliance. In this demo the
+          log is kept in your browser; a production deployment would persist it
+          server-side with user attribution.
+        </span>
       </div>
-      <div className="thread-body">
-        <div className="thread-title">{title}</div>
-        <div className="thread-preview">{preview}</div>
-        <div className="thread-meta">
-          <span className={`status-pill status-${status}`}>{statusLabel}</span>
-          <span>{messages}</span>
-          <span>{ago}</span>
+
+      <div className="section-header">
+        <span className="section-title">Activity Log ({audit.length})</span>
+        {audit.length > 0 && (
+          <button className="btn btn-ghost" style={{ fontSize: 11, padding: "4px 10px" }} onClick={onClear}>
+            Clear log
+          </button>
+        )}
+      </div>
+
+      {audit.length === 0 ? (
+        <div className="empty-state">
+          No activity yet. Run a query or summarize a report and it will appear here.
         </div>
-      </div>
+      ) : (
+        <div className="table-wrap">
+          <table className="report-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+              {audit.map((e) => (
+                <tr key={e.id}>
+                  <td style={{ fontSize: 12, whiteSpace: "nowrap" }}>
+                    {new Date(e.ts).toLocaleString()}
+                  </td>
+                  <td>
+                    <span className="audit-action">{e.action}</span>
+                  </td>
+                  <td style={{ color: "var(--text-mid)" }}>{e.detail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Styles                                                              */
+/* ------------------------------------------------------------------ */
 
 const DEMO_CSS = `
 .demo-app-root {
@@ -1154,11 +1442,6 @@ const DEMO_CSS = `
 .demo-app-root .topbar-meta { font-size: 12px; color: var(--text-faint); }
 .demo-app-root .topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
 
-.demo-app-root .status-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--success); display: inline-block; margin-right: 6px;
-}
-
 .demo-app-root .btn {
   padding: 6px 14px; border-radius: 6px;
   font-size: 12px; font-family: 'Inter', system-ui, sans-serif;
@@ -1254,6 +1537,7 @@ const DEMO_CSS = `
 }
 .demo-app-root .ai-query-echo { font-size: 12px; color: var(--text-faint); font-style: italic; }
 .demo-app-root .ai-response-body { font-size: 13.5px; color: var(--text-mid); line-height: 1.78; }
+.demo-app-root .ai-error { color: var(--danger); }
 .demo-app-root .ai-loading { display: flex; align-items: center; gap: 10px; color: var(--text-faint); font-size: 13px; }
 .demo-app-root .loading-dots span {
   display: inline-block; width: 5px; height: 5px;
@@ -1272,6 +1556,22 @@ const DEMO_CSS = `
   font-size: 11px; padding: 3px 9px; border-radius: 4px;
   background: rgba(46,90,122,0.07); border: 1px solid rgba(46,90,122,0.18); color: var(--info);
 }
+
+.demo-app-root .export-bar {
+  margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  border-top: 1px solid var(--border-light); padding-top: 12px;
+}
+.demo-app-root .export-label {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-faint); font-weight: 600; margin-right: 2px;
+}
+.demo-app-root .export-btn {
+  font-size: 11px; padding: 4px 11px; border-radius: 6px;
+  border: 1px solid var(--border); color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s; background: transparent; font-family: inherit;
+}
+.demo-app-root .export-btn:hover { border-color: var(--gold-muted); color: var(--gold-btn); background: rgba(184,134,11,0.05); }
+.demo-app-root .export-flash { font-size: 11px; color: var(--success); margin-left: 4px; }
 
 .demo-app-root .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .demo-app-root .section-title { font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--text-faint); font-weight: 600; }
@@ -1300,6 +1600,32 @@ const DEMO_CSS = `
 .demo-app-root .stat-delta { font-size: 11px; margin-top: 5px; }
 .demo-app-root .delta-up { color: var(--success); }
 
+.demo-app-root .filter-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.demo-app-root .filter-input {
+  background: var(--cream-card); border: 1px solid var(--border); border-radius: 6px;
+  padding: 7px 12px; font-size: 13px; font-family: inherit; color: var(--text);
+  outline: none; min-width: 200px; flex: 1;
+}
+.demo-app-root .filter-input:focus { border-color: var(--gold-muted); }
+.demo-app-root .filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.demo-app-root .filter-chip {
+  font-size: 11px; padding: 5px 11px; border-radius: 20px;
+  border: 1px solid var(--border); color: var(--text-muted);
+  cursor: pointer; background: transparent; font-family: inherit; transition: all 0.15s;
+}
+.demo-app-root .filter-chip:hover { border-color: var(--gold-muted); color: var(--gold-btn); }
+.demo-app-root .filter-chip.active { background: var(--gold-btn); border-color: var(--gold-btn); color: #fff; }
+.demo-app-root .filter-select {
+  background: var(--cream-card); border: 1px solid var(--border); border-radius: 6px;
+  padding: 7px 10px; font-size: 12px; font-family: inherit; color: var(--text-muted); cursor: pointer;
+}
+
+.demo-app-root .table-wrap {
+  background: var(--cream-card); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; margin-bottom: 24px;
+}
 .demo-app-root .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .demo-app-root .report-table th {
   text-align: left; padding: 8px 14px;
@@ -1313,6 +1639,32 @@ const DEMO_CSS = `
 .demo-app-root .report-table tr:last-child td { border-bottom: none; }
 .demo-app-root .report-table tr:hover td { background: rgba(184,134,11,0.03); }
 .demo-app-root .report-table td:first-child { color: var(--text); }
+
+.demo-app-root .row-ai-btn {
+  font-size: 11px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid var(--border); color: var(--gold-btn);
+  background: rgba(184,134,11,0.06); cursor: pointer; font-family: inherit;
+  white-space: nowrap; transition: all 0.15s;
+}
+.demo-app-root .row-ai-btn:hover { border-color: var(--gold-muted); background: rgba(184,134,11,0.12); }
+.demo-app-root .row-ai-btn:disabled { color: var(--text-faint); cursor: not-allowed; }
+
+.demo-app-root .ai-summary {
+  background: rgba(184,134,11,0.05); border: 1px solid var(--border-light);
+  border-left: 3px solid var(--gold); border-radius: 6px;
+  padding: 10px 12px; margin: 4px 0 8px; font-size: 12.5px;
+  color: var(--text-mid); line-height: 1.6;
+}
+.demo-app-root .ai-summary.error { border-left-color: var(--danger); color: var(--danger); }
+.demo-app-root .ai-summary-head {
+  display: block; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gold-btn); font-weight: 700; margin-bottom: 4px;
+}
+
+.demo-app-root .audit-action {
+  font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600;
+  background: rgba(46,90,122,0.07); border: 1px solid rgba(46,90,122,0.18); color: var(--info);
+}
 
 .demo-app-root .status-pill {
   display: inline-block; padding: 2px 8px; border-radius: 4px;
@@ -1356,6 +1708,40 @@ const DEMO_CSS = `
 .demo-app-root .thread-preview { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 .demo-app-root .thread-meta { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 10px; margin-top: 7px; }
 .demo-app-root .thread-unread { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; margin-top: 5px; }
+
+.demo-app-root .upload-zone {
+  background: var(--cream-card); border: 2px dashed var(--border);
+  border-radius: 10px; padding: 36px 24px; text-align: center;
+  cursor: pointer; transition: all 0.15s; margin-bottom: 24px;
+}
+.demo-app-root .upload-zone:hover, .demo-app-root .upload-zone.dragging {
+  border-color: var(--gold-muted); background: rgba(184,134,11,0.05);
+}
+.demo-app-root .upload-icon { font-size: 26px; color: var(--gold); margin-bottom: 8px; }
+.demo-app-root .upload-title { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+.demo-app-root .upload-sub { font-size: 11px; color: var(--text-faint); }
+.demo-app-root .upload-input { display: none; }
+
+.demo-app-root .doc-list { display: flex; flex-direction: column; gap: 8px; }
+.demo-app-root .doc-row {
+  background: var(--cream-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+}
+.demo-app-root .doc-row-body { flex: 1; }
+.demo-app-root .doc-row-title { font-size: 13px; color: var(--text); font-weight: 500; }
+.demo-app-root .doc-row-meta { font-size: 11px; color: var(--text-faint); display: flex; gap: 12px; margin-top: 2px; }
+.demo-app-root .doc-remove {
+  font-size: 11px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid var(--border); color: var(--danger);
+  background: transparent; cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.demo-app-root .doc-remove:hover { background: rgba(139,58,46,0.08); border-color: rgba(139,58,46,0.3); }
+
+.demo-app-root .empty-state {
+  background: var(--cream-card); border: 1px dashed var(--border);
+  border-radius: 8px; padding: 24px; text-align: center;
+  font-size: 13px; color: var(--text-faint);
+}
 
 .demo-app-root ::-webkit-scrollbar { width: 5px; }
 .demo-app-root ::-webkit-scrollbar-track { background: transparent; }
