@@ -33,6 +33,8 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0}
 .nav-badge{margin-left:auto;background:var(--cream-dark);color:var(--text-muted);font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid var(--border-light)}
 .nav-badge.alert{background:rgba(139,58,46,0.1);color:var(--danger);border-color:rgba(139,58,46,0.2)}
+.nav-badge.gold{background:rgba(184,134,11,0.12);color:var(--gold-btn);border-color:var(--gold-pale)}
+.nav-badge.live{background:rgba(74,124,89,0.1);color:var(--success);border-color:rgba(74,124,89,0.25)}
 .sidebar-footer{padding:14px 20px;border-top:1px solid var(--border-light)}
 .agency-badge{display:flex;align-items:center;gap:9px}
 .agency-avatar{width:30px;height:30px;border-radius:50%;background:rgba(184,134,11,0.1);border:1px solid var(--gold-pale);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--gold-btn);flex-shrink:0}
@@ -54,6 +56,14 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .content{flex:1;overflow-y:auto;padding:28px}
 .panel{display:none}
 .panel.active{display:block}
+
+/* Shared bits */
+.feature-intro{font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:18px;max-width:720px}
+.demo-chip{font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:var(--cream-dark);border:1px solid var(--border);color:var(--text-faint);padding:2px 7px;border-radius:4px;font-weight:600;vertical-align:middle}
+.todo-note{font-size:10.5px;color:var(--text-faint);font-style:italic;margin-top:14px;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.todo-note::before{content:'\2691';color:var(--gold-muted);font-style:normal;flex-shrink:0}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--gold-pale);border-top-color:var(--gold-btn);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* KB search area */
 .kb-search-area{background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:22px 24px;margin-bottom:24px}
@@ -83,6 +93,122 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 .source-tags{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid var(--border-light);padding-top:12px}
 .source-tag{font-size:11px;padding:3px 9px;border-radius:4px;background:rgba(46,90,122,0.07);border:1px solid rgba(46,90,122,0.18);color:var(--info)}
+
+/* Assistant / chat */
+.chat-thread{display:flex;flex-direction:column;gap:18px;padding:4px 2px 18px;min-height:300px;max-height:calc(100vh - 320px);overflow-y:auto}
+.msg{display:flex;gap:12px;max-width:780px}
+.msg.user{flex-direction:row-reverse;margin-left:auto}
+.msg-avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.msg.ai .msg-avatar{background:rgba(184,134,11,0.12);color:var(--gold-btn);border:1px solid var(--gold-pale)}
+.msg.user .msg-avatar{background:rgba(46,90,122,0.1);color:var(--info);border:1px solid rgba(46,90,122,0.2)}
+.msg-bubble{padding:13px 16px;border-radius:12px;font-size:13.5px;line-height:1.72}
+.msg.ai .msg-bubble{background:var(--cream-card);border:1px solid var(--border);border-top-left-radius:3px;color:var(--text-mid)}
+.msg.user .msg-bubble{background:rgba(46,90,122,0.06);border:1px solid rgba(46,90,122,0.15);border-top-right-radius:3px;color:var(--text-mid)}
+.msg-bubble p{margin-bottom:9px}
+.msg-bubble p:last-child{margin-bottom:0}
+.cite{display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--gold-btn);background:rgba(184,134,11,0.12);border:1px solid rgba(184,134,11,0.3);border-radius:3px;padding:0 4px;height:14px;margin:0 1px;vertical-align:super;cursor:pointer;line-height:1}
+.cite:hover{background:rgba(184,134,11,0.22)}
+.msg-sources{margin-top:11px;border-top:1px solid var(--border-light);padding-top:10px;display:flex;flex-direction:column;gap:5px}
+.msg-source{font-size:11px;color:var(--info);display:flex;gap:7px;align-items:baseline}
+.msg-source b{color:var(--gold-btn);font-weight:700;min-width:16px}
+.chat-input-bar{display:flex;gap:10px;align-items:flex-end;background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:6px}
+.chat-input{flex:1;border:none;background:transparent;resize:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--text);line-height:1.55;max-height:120px;outline:none}
+.chat-send{background:var(--gold-btn);border:none;color:#fff;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;flex-shrink:0;transition:background .15s;display:flex;align-items:center;justify-content:center}
+.chat-send:hover{background:var(--gold)}
+.suggest-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+.suggest{font-size:12px;padding:6px 11px;border-radius:16px;background:var(--cream-card);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .15s}
+.suggest:hover{border-color:var(--gold-muted);color:var(--gold-btn)}
+
+/* Ingestion */
+.watch-card{display:flex;align-items:center;gap:16px;background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+.watch-ico{width:42px;height:42px;border-radius:10px;background:rgba(74,124,89,0.1);border:1px solid rgba(74,124,89,0.22);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--success);flex-shrink:0}
+.watch-folder{font-size:14px;color:var(--text);font-weight:600;display:flex;align-items:center;gap:9px}
+.watch-meta{font-size:11.5px;color:var(--text-faint);margin-top:3px}
+.watch-spacer{margin-left:auto;display:flex;align-items:center;gap:16px}
+.toggle{width:38px;height:21px;border-radius:11px;background:var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--gold-btn)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(17px)}
+.toggle-wrap{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text-muted)}
+.feed-wrap{background:var(--cream-card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.feed-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid var(--border-light)}
+.feed-row:last-child{border-bottom:none}
+.feed-ico{width:32px;height:32px;border-radius:7px;background:var(--cream);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:var(--text-muted)}
+.feed-name{font-size:13px;color:var(--text)}
+.feed-sub{font-size:11px;color:var(--text-faint);margin-top:2px}
+.feed-stat{margin-left:auto;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.dropzone{border:1.5px dashed var(--border);border-radius:10px;padding:26px;text-align:center;color:var(--text-faint);font-size:12.5px;background:rgba(184,134,11,0.02);margin-top:16px}
+
+/* Briefs */
+.controls-card{background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:20px}
+.ctrl-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.ctrl{flex:1;min-width:210px}
+.ctrl-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:8px}
+.select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;background:var(--cream);font-family:'Inter',sans-serif;font-size:13px;color:var(--text-mid);cursor:pointer;outline:none}
+.range-chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:12px;padding:6px 12px;border-radius:6px;background:var(--cream);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--gold-muted)}
+.chip.active{border-color:var(--gold);background:rgba(184,134,11,0.08);color:var(--gold-btn)}
+.gen-output{background:var(--cream-card);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:22px 26px;display:none}
+.gen-output.visible{display:block}
+.gen-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;color:var(--text);margin-bottom:4px}
+.gen-sub{font-size:12px;color:var(--text-faint);margin-bottom:20px}
+.brief-section{margin-bottom:20px}
+.brief-section:last-child{margin-bottom:0}
+.brief-h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-btn);font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:9px}
+.brief-h::before{content:'';width:16px;height:1.5px;background:var(--gold)}
+.brief-list{list-style:none}
+.brief-list li{font-size:13px;color:var(--text-mid);line-height:1.6;padding:4px 0 4px 18px;position:relative}
+.brief-list li::before{content:'\25AA';position:absolute;left:0;color:var(--gold-muted)}
+.brief-p{font-size:13.5px;color:var(--text-mid);line-height:1.75}
+
+/* Institutional Memory */
+.continuity-hero{background:linear-gradient(135deg,rgba(184,134,11,0.09),rgba(184,134,11,0.015));border:1px solid var(--gold-pale);border-radius:12px;padding:24px 28px;margin-bottom:26px;display:flex;gap:34px;align-items:center;flex-wrap:wrap}
+.ch-val{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--text);line-height:1}
+.ch-lbl{font-size:11px;color:var(--text-muted);margin-top:6px;max-width:130px;line-height:1.4}
+.ch-divider{width:1px;align-self:stretch;background:var(--gold-pale)}
+.timeline{position:relative;padding-left:28px;margin-top:4px}
+.timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1.5px;background:var(--border)}
+.tl-item{position:relative;padding-bottom:22px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-28px;top:2px;width:16px;height:16px;border-radius:50%;background:var(--cream);border:2px solid var(--gold)}
+.tl-dot.transition{border-color:var(--info);background:rgba(46,90,122,0.12)}
+.tl-date{font-size:11px;color:var(--text-faint);font-weight:600;letter-spacing:.04em;margin-bottom:4px;text-transform:uppercase}
+.tl-title{font-size:13.5px;color:var(--text);font-weight:600;margin-bottom:5px}
+.tl-desc{font-size:12.5px;color:var(--text-muted);line-height:1.65}
+.tl-transition{background:rgba(46,90,122,0.05);border:1px dashed rgba(46,90,122,0.3);border-radius:8px;padding:11px 15px}
+.tl-transition .tl-title{color:var(--info)}
+
+/* Meeting Prep */
+.prep-layout{display:grid;grid-template-columns:290px 1fr;gap:20px}
+.meeting-item{background:var(--cream-card);border:1px solid var(--border);border-radius:8px;padding:14px;cursor:pointer;margin-bottom:10px;transition:all .15s}
+.meeting-item:hover{border-color:var(--gold-muted)}
+.meeting-item.active{border-color:var(--gold);background:rgba(184,134,11,0.05)}
+.mi-time{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--gold-btn);font-weight:700;margin-bottom:6px}
+.mi-title{font-size:13px;color:var(--text);font-weight:600;margin-bottom:4px;line-height:1.4}
+.mi-sub{font-size:11.5px;color:var(--text-faint)}
+.dossier{background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:24px 26px;min-height:320px}
+.dossier-head{border-bottom:1px solid var(--border-light);padding-bottom:16px;margin-bottom:18px}
+.dossier-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--text);margin-bottom:5px}
+.dossier-meta{font-size:12px;color:var(--text-faint)}
+.attendee{display:flex;gap:12px;align-items:flex-start;padding:9px 0}
+.att-avatar{width:32px;height:32px;border-radius:50%;background:rgba(46,90,122,0.1);border:1px solid rgba(46,90,122,0.2);color:var(--info);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.att-name{font-size:13px;color:var(--text);font-weight:600}
+.att-note{font-size:12px;color:var(--text-muted);line-height:1.55;margin-top:2px}
+
+/* Compliance */
+.validator{background:var(--cream-card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:20px}
+.val-input{width:100%;min-height:92px;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text-mid);resize:vertical;background:var(--cream);outline:none;line-height:1.6;margin-bottom:14px}
+.val-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.rule-row{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--border-light)}
+.rule-row:last-child{border-bottom:none}
+.rule-icon{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px}
+.r-pass{background:rgba(74,124,89,0.12);color:var(--success)}
+.r-warn{background:rgba(158,109,20,0.12);color:var(--warning)}
+.r-fail{background:rgba(139,58,46,0.12);color:var(--danger)}
+.rule-name{font-size:13px;color:var(--text);font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.rule-detail{font-size:12.5px;color:var(--text-muted);line-height:1.6}
+.rule-cite{font-size:11px;color:var(--info);margin-top:5px}
 
 /* Doc grid */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -162,14 +288,20 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
       <div class="logo-tagline">Capitol Intelligence</div>
     </div>
     <nav class="nav">
-      <div class="nav-section-label">Knowledge</div>
-      <div class="nav-item active" onclick="switchPanel('kb',this)"><span class="nav-icon">◈</span> Knowledge Base<span class="nav-badge">1,204</span></div>
-      <div class="nav-item" onclick="switchPanel('search',this)"><span class="nav-icon">⊹</span> Semantic Search</div>
+      <div class="nav-section-label">Intelligence</div>
+      <div class="nav-item active" onclick="switchPanel('assistant',this)"><span class="nav-icon">✦</span> Assistant<span class="nav-badge gold">AI</span></div>
+      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">◈</span> Knowledge Base<span class="nav-badge">1,204</span></div>
+      <div class="nav-item" onclick="switchPanel('ingestion',this)"><span class="nav-icon">⊕</span> Ingestion<span class="nav-badge live">live</span></div>
+      <div class="nav-section-label">Briefings</div>
+      <div class="nav-item" onclick="switchPanel('briefs',this)"><span class="nav-icon">❧</span> Get Up to Speed</div>
+      <div class="nav-item" onclick="switchPanel('prep',this)"><span class="nav-icon">◷</span> Meeting Prep<span class="nav-badge">2</span></div>
+      <div class="nav-item" onclick="switchPanel('memory',this)"><span class="nav-icon">∞</span> Institutional Memory</div>
       <div class="nav-section-label">Operations</div>
       <div class="nav-item" onclick="switchPanel('reports',this)"><span class="nav-icon">≡</span> Reports<span class="nav-badge alert">3</span></div>
       <div class="nav-item" onclick="switchPanel('coord',this)"><span class="nav-icon">⟐</span> Coordination<span class="nav-badge">12</span></div>
-      <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">◫</span> Compliance</div>
+      <div class="nav-item" onclick="switchPanel('compliance',this)"><span class="nav-icon">◫</span> Compliance</div>
       <div class="nav-section-label">System</div>
+      <div class="nav-item" onclick="switchPanel('search',this)"><span class="nav-icon">‹›</span> Semantic Search</div>
       <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">◌</span> Audit Trail</div>
       <div class="nav-item" onclick="switchPanel('kb',this)"><span class="nav-icon">⊡</span> Settings</div>
     </nav>
@@ -183,8 +315,8 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
   <main class="main">
     <div class="topbar">
-      <span class="topbar-title" id="topbar-title">Knowledge Base</span>
-      <span class="topbar-meta" id="topbar-meta">1,204 documents · Last indexed 4 min ago</span>
+      <span class="topbar-title" id="topbar-title">Assistant</span>
+      <span class="topbar-meta" id="topbar-meta">Knowledge-grounded chat · cites office documents</span>
       <div class="topbar-actions">
         <span style="font-size:12px;color:var(--text-faint)"><span class="status-dot"></span>All systems operational</span>
         <button class="btn btn-ghost">Export</button>
@@ -194,8 +326,144 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 
     <div class="content">
 
-      <!-- KB Panel -->
-      <div class="panel active" id="panel-kb">
+      <!-- ============ ASSISTANT (Chatbot w/ citations) ============ -->
+      <!-- TODO(ai): Replace mockReply() with a retrieval-augmented call to the
+           Anthropic API. Pipeline: embed the user query -> vector-search the
+           ingested knowledge base -> pass top-k document chunks as context ->
+           stream the model response -> render returned citation spans. -->
+      <div class="panel active" id="panel-assistant">
+        <p class="feature-intro">Ask anything about your office's documents, procedures, and prior decisions. Every answer is grounded in the knowledge base and returns inline citations you can click to open the source. <span class="demo-chip">Demo replies</span></p>
+        <div class="suggest-row" id="chat-suggests"></div>
+        <div class="chat-thread" id="chat-thread"></div>
+        <div class="chat-input-bar">
+          <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask about a bill, a rule, a project, or a past decision…"></textarea>
+          <button class="chat-send" onclick="sendChat()" title="Send">↑</button>
+        </div>
+        <div class="todo-note">Demo answers are pre-written. Production build grounds responses in retrieved office documents via the Anthropic API (see code comment <b>TODO(ai)</b>).</div>
+      </div>
+
+      <!-- ============ INGESTION (auto knowledge base sync) ============ -->
+      <!-- TODO(ai): Wire watch-folder to a real filesystem watcher (e.g. a local
+           agent / chokidar / fswatch). On new file: extract text -> chunk ->
+           embed -> upsert into the vector store -> emit a feed event. The feed
+           below is currently driven by simulateIngest(). -->
+      <div class="panel" id="panel-ingestion">
+        <p class="feature-intro">Drop a file on your Desktop and Ordinance ingests it automatically — parsed, indexed, and searchable within seconds. No manual uploads, no folder discipline required. <span class="demo-chip">Simulated feed</span></p>
+        <div class="watch-card">
+          <div class="watch-ico">◉</div>
+          <div>
+            <div class="watch-folder">~/Desktop <span class="pill p-open">Watching</span></div>
+            <div class="watch-meta">Auto-sync connected · last event 2 min ago · 312 files indexed from this source</div>
+          </div>
+          <div class="watch-spacer">
+            <div class="toggle-wrap">Auto-ingest <div class="toggle on" id="watch-toggle" onclick="toggleWatch()"></div></div>
+            <button class="btn btn-gold" style="font-size:12px" onclick="simulateIngest()">Simulate desktop drop</button>
+          </div>
+        </div>
+        <div class="section-header"><span class="section-title">Live Ingestion Feed</span><span class="section-link">View all sources →</span></div>
+        <div class="feed-wrap" id="ingest-feed"></div>
+        <div class="dropzone">Drag files here to ingest manually — or just save them to a watched folder and they appear automatically.</div>
+        <div class="todo-note">Feed events are simulated client-side. Production build connects a real folder watcher to the embedding + vector-store pipeline (see <b>TODO(ai)</b>).</div>
+      </div>
+
+      <!-- ============ GET UP TO SPEED (exec briefs) ============ -->
+      <!-- TODO(ai): generateBrief() should query documents filtered by the
+           selected project + date range, then summarize via the Anthropic API
+           into the structured sections below. Output is currently static. -->
+      <div class="panel" id="panel-briefs">
+        <p class="feature-intro">“Get me up to speed.” Pick a project or a date window — e.g. <i>Aug 1 – Aug 20</i> — and get a concise executive brief of everything that happened: decisions made, open items, and who's involved. <span class="demo-chip">Sample brief</span></p>
+        <div class="controls-card">
+          <div class="ctrl-row">
+            <div class="ctrl">
+              <div class="ctrl-label">Project / Topic</div>
+              <select class="select" id="brief-project">
+                <option>H.R. 2847 — Infrastructure Reauthorization</option>
+                <option>FY2026 Appropriations</option>
+                <option>Energy Subcommittee Hearing Prep</option>
+                <option>Constituent Casework — Federal Grants</option>
+                <option>All active projects</option>
+              </select>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Date Range</div>
+              <div class="range-chips" id="brief-ranges">
+                <div class="chip active" onclick="setRange(this,'Last 7 days')">Last 7 days</div>
+                <div class="chip" onclick="setRange(this,'Last 30 days')">Last 30 days</div>
+                <div class="chip" onclick="setRange(this,'Aug 1 – Aug 20')">Aug 1 – Aug 20</div>
+                <div class="chip" onclick="setRange(this,'This Congress')">This Congress</div>
+                <div class="chip" onclick="setRange(this,'Custom…')">Custom…</div>
+              </div>
+            </div>
+          </div>
+          <button class="ask-btn" onclick="generateBrief()">Generate brief</button>
+        </div>
+        <div class="gen-output" id="brief-output"></div>
+      </div>
+
+      <!-- ============ MEETING PREP ============ -->
+      <!-- TODO(ai): selectMeeting() dossiers should be generated on demand by
+           pulling calendar context + relevant KB documents + prior interactions
+           and summarizing via the Anthropic API. Currently static per meeting. -->
+      <div class="panel" id="panel-prep">
+        <p class="feature-intro">Walk into every meeting prepared. Ordinance assembles a dossier from your knowledge base — attendee backgrounds, relevant history, talking points, open items, and the documents you'll need. <span class="demo-chip">Sample dossiers</span></p>
+        <div class="prep-layout">
+          <div>
+            <div class="section-header" style="margin-bottom:12px"><span class="section-title">Upcoming</span></div>
+            <div id="meeting-list"></div>
+          </div>
+          <div class="dossier" id="dossier"></div>
+        </div>
+        <div class="todo-note">Dossiers are pre-written for the demo. Production build generates them from calendar + retrieved documents via the Anthropic API (see <b>TODO(ai)</b>).</div>
+      </div>
+
+      <!-- ============ INSTITUTIONAL MEMORY ============ -->
+      <!-- TODO(ai): The continuity layer needs a durable memory store that
+           survives staff turnover: persist decisions, precedents, and rationale
+           as structured records linked to source documents, and surface them on
+           query. The timeline below is illustrative static data. -->
+      <div class="panel" id="panel-memory">
+        <p class="feature-intro">The knowledge doesn't reset when staff turn over. Ordinance preserves every decision, precedent, and rationale as a continuous institutional record — so a new hire on day one knows what the office knew on year ten. <span class="demo-chip">Illustrative</span></p>
+        <div class="continuity-hero">
+          <div><div class="ch-val">100%</div><div class="ch-lbl">knowledge retained across staff transitions</div></div>
+          <div class="ch-divider"></div>
+          <div><div class="ch-val">1,204</div><div class="ch-lbl">documents preserved &amp; linked</div></div>
+          <div class="ch-divider"></div>
+          <div><div class="ch-val">86</div><div class="ch-lbl">decisions &amp; precedents on record</div></div>
+          <div class="ch-divider"></div>
+          <div><div class="ch-val">7</div><div class="ch-lbl">staff transitions bridged with zero knowledge loss</div></div>
+        </div>
+        <div class="section-header" style="margin-bottom:16px"><span class="section-title">Continuity Timeline</span><span class="section-link">Search the record →</span></div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Apr 2025</div><div class="tl-title">Position locked: support H.R. 2847 with rural broadband carve-out</div><div class="tl-desc">Rationale, whip-count history, and the negotiated amendment text preserved. Linked to 14 source documents and the TX-07 coordination thread.</div></div>
+          <div class="tl-item"><div class="tl-dot transition"></div><div class="tl-transition"><div class="tl-title">Staff transition — Legislative Director departed</div><div class="tl-desc">L. Park onboarded. All active positions, commitments, and open casework transferred automatically. No re-briefing required — prior context carried forward intact.</div></div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Feb 2025</div><div class="tl-title">Precedent: gift-rule interpretation for district nonprofit galas</div><div class="tl-desc">Ethics Committee guidance and the office's prior handling captured so future staff apply the same standard. Cited 3 times since.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">Jan 2025</div><div class="tl-title">Commitment logged: FY2026 Labor-HHS report language request</div><div class="tl-desc">Member's appropriations priorities and the subcommittee contacts recorded against the project, surviving the budget-cycle reset.</div></div>
+          <div class="tl-item"><div class="tl-dot transition"></div><div class="tl-transition"><div class="tl-title">Staff transition — two interns rotated out</div><div class="tl-desc">Constituent casework notes and in-progress research retained and reassigned. Continuity preserved across the rotation.</div></div></div>
+        </div>
+        <div class="todo-note">Timeline is illustrative. Production build persists decisions/precedents to a durable memory store linked to source documents (see <b>TODO(ai)</b>).</div>
+      </div>
+
+      <!-- ============ COMPLIANCE VALIDATION ============ -->
+      <!-- TODO(ai): runValidation() should send the submitted text + the office's
+           governing rule set to the Anthropic API and return per-rule findings
+           with citations. Results below are static demonstration output. -->
+      <div class="panel" id="panel-compliance">
+        <p class="feature-intro">Validate communications, travel, gifts, and disbursements against House ethics, gift, franking, and appropriations rules before they go out — with a clear pass / flag / fail and the citation behind every finding. <span class="demo-chip">Sample validation</span></p>
+        <div class="validator">
+          <div class="ctrl-label">Submit text or describe an action to validate</div>
+          <textarea class="val-input" id="val-input">Staff member invited to a $120 industry dinner hosted by a registered lobbyist; office mailer drafted promoting the Member's town hall and including a fundraising link.</textarea>
+          <div class="val-presets">
+            <div class="suggest" onclick="setVal('Accept two tickets ($90 each) to a charity gala from a district nonprofit.')">Gift / event invite</div>
+            <div class="suggest" onclick="setVal('Mass mailer to constituents 45 days before the primary election.')">Franking / mailer</div>
+            <div class="suggest" onclick="setVal('Use MRA funds to print campaign yard signs for the district office.')">MRA / appropriations</div>
+          </div>
+          <button class="ask-btn" onclick="runValidation()">Run compliance check</button>
+        </div>
+        <div class="gen-output" id="val-output"></div>
+      </div>
+
+      <!-- ============ KB Panel (existing) ============ -->
+      <div class="panel" id="panel-kb">
         <div class="kb-search-area">
           <div class="kb-search-label">Select a question to query the knowledge base</div>
           <div class="question-grid" id="qgrid-kb"></div>
@@ -217,13 +485,13 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
           <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--info)"></div>Congressional Record</div><div class="doc-title">Floor Debate Transcript — H.R. 2847 Infrastructure Reauthorization</div><div class="doc-meta"><span>119th Congress</span><span>Apr 29, 2025</span></div></div>
           <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--gold)"></div>Committee Report</div><div class="doc-title">House Appropriations Subcommittee Markup — FY2026 Labor-HHS</div><div class="doc-meta"><span>HAC-LH-2025-04</span><span>Apr 22, 2025</span></div></div>
           <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--success)"></div>CRS Report</div><div class="doc-title">The Federal Budget Process: A Brief Overview</div><div class="doc-meta"><span>R46240</span><span>Mar 10, 2025</span></div></div>
-          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--danger)"></div>Ethics Guidance</div><div class="doc-title">House Ethics Manual 2025 — Staff Gift & Travel Rules</div><div class="doc-meta"><span>HOE-2025-01</span><span>Jan 15, 2025</span></div></div>
+          <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--danger)"></div>Ethics Guidance</div><div class="doc-title">House Ethics Manual 2025 — Staff Gift &amp; Travel Rules</div><div class="doc-meta"><span>HOE-2025-01</span><span>Jan 15, 2025</span></div></div>
           <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--info)"></div>CRS Report</div><div class="doc-title">Discharge Petitions and the Legislative Process</div><div class="doc-meta"><span>RS20301</span><span>Feb 3, 2025</span></div></div>
           <div class="doc-card"><div class="doc-type"><div class="dot" style="background:var(--warning)"></div>Member Guidance</div><div class="doc-title">Office Operations Handbook — 119th Congress Edition</div><div class="doc-meta"><span>CAO-OPS-2025</span><span>Jan 6, 2025</span></div></div>
         </div>
       </div>
 
-      <!-- Search Panel -->
+      <!-- ============ Search Panel (existing) ============ -->
       <div class="panel" id="panel-search">
         <div class="kb-search-area">
           <div class="kb-search-label">Select a question to search across all documents</div>
@@ -240,7 +508,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
         </div>
       </div>
 
-      <!-- Reports Panel -->
+      <!-- ============ Reports Panel (existing) ============ -->
       <div class="panel" id="panel-reports">
         <div class="stats-row">
           <div class="stat-card"><div class="stat-label">Open Reports</div><div class="stat-value">47</div><div class="stat-delta delta-up">↑ 5 this week</div></div>
@@ -267,7 +535,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
         </div>
       </div>
 
-      <!-- Coordination Panel -->
+      <!-- ============ Coordination Panel (existing) ============ -->
       <div class="panel" id="panel-coord">
         <div class="agency-grid">
           <div class="agency-card"><div class="ac-header"><div class="ac-icon" style="background:rgba(46,90,122,0.1);color:var(--info);border:1px solid rgba(46,90,122,0.2)">TX-3</div><div><div class="ac-name">Rep. Carter's Office</div><div class="ac-dept">TX-03 · Energy Committee</div></div></div><div class="ac-metrics"><div><div class="ac-val">12</div><div class="ac-lbl">open items</div></div><div><div class="ac-val" style="color:var(--success)">94%</div><div class="ac-lbl">response rate</div></div></div></div>
@@ -291,6 +559,11 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 </div>
 
 <script>
+/* =========================================================================
+   Knowledge base Q&A content (shared by KB panel, Semantic Search, and the
+   Assistant chat). In production these answers come from the Anthropic API
+   grounded in retrieved documents — see TODO(ai) comments in the markup.
+   ========================================================================= */
 var QUESTIONS = [
   {
     q: "How do I introduce a bill in the House?",
@@ -324,6 +597,7 @@ var QUESTIONS = [
   }
 ];
 
+/* ---------- KB / Semantic Search panels (existing behavior) ---------- */
 var selectedIdx = { kb: -1, search: -1 };
 
 function buildGrids() {
@@ -363,13 +637,14 @@ function runMock(panel) {
   var askBtn = document.getElementById('ask-btn-' + panel);
 
   echoEl.textContent = '"' + item.q + '"';
-  bodyEl.innerHTML = '<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div>Searching knowledge base\u2026</div>';
+  bodyEl.innerHTML = '<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>';
   tagsEl.innerHTML = '';
   tagsEl.style.display = 'none';
   respEl.classList.add('visible', 'animate-in');
   askBtn.disabled = true;
-  askBtn.textContent = 'Querying\u2026';
+  askBtn.textContent = 'Querying…';
 
+  // TODO(ai): replace this simulated delay with a real Anthropic API call.
   setTimeout(function() {
     bodyEl.innerHTML = '';
     item.a.split('\n\n').forEach(function(para) {
@@ -391,23 +666,311 @@ function runMock(panel) {
   }, 1400);
 }
 
+/* ---------- Assistant chat (Feature 1: cited chatbot) ---------- */
+var CHAT_KEYS = [
+  { k: ['introduce','bill','hopper','legislation'], i: 0 },
+  { k: ['gift','ethics','dinner','meal','lobbyist'], i: 1 },
+  { k: ['appropriat','funding','budget','spending'], i: 2 },
+  { k: ['discharge','petition','218'], i: 3 },
+  { k: ['crs','research service','report request'], i: 4 },
+  { k: ['shutdown','furlough','antideficiency'], i: 5 }
+];
+var SUGGESTS = [
+  "How do I introduce a bill in the House?",
+  "What are the gift rules for staff?",
+  "Walk me through the appropriations process",
+  "What happens during a government shutdown?"
+];
+
+function mockReply(text) {
+  // TODO(ai): replace keyword matching with retrieval + Anthropic API call.
+  var t = (text || '').toLowerCase();
+  for (var i = 0; i < CHAT_KEYS.length; i++) {
+    for (var j = 0; j < CHAT_KEYS[i].k.length; j++) {
+      if (t.indexOf(CHAT_KEYS[i].k[j]) !== -1) return QUESTIONS[CHAT_KEYS[i].i];
+    }
+  }
+  return {
+    a: "I can answer that using your office's indexed knowledge base, grounding every response in the specific memos, reports, and prior decisions relevant to your question — with clickable citations to each source.\n\nThis demo has detailed answers wired up for: introducing a bill, staff gift rules, the appropriations process, discharge petitions, requesting CRS reports, and government shutdowns. Try one of the suggestions above.",
+    sources: ["Office Knowledge Base (1,204 documents)", "Institutional Memory Store"]
+  };
+}
+
+function appendMsg(role, html) {
+  var thread = document.getElementById('chat-thread');
+  var msg = document.createElement('div');
+  msg.className = 'msg ' + role + ' animate-in';
+  var avatar = role === 'ai' ? '✦' : 'MH';
+  var bubble = '<div class="msg-avatar">' + avatar + '</div><div class="msg-bubble">' + html + '</div>';
+  msg.innerHTML = bubble;
+  thread.appendChild(msg);
+  thread.scrollTop = thread.scrollHeight;
+  return msg;
+}
+
+function renderAnswer(item) {
+  var paras = item.a.split('\n\n').filter(function(p){ return p.trim(); });
+  var html = '';
+  paras.forEach(function(p, idx) {
+    var citeMarks = '';
+    if (idx === paras.length - 1) {
+      // attach inline citation markers to the final paragraph
+      item.sources.forEach(function(_, si) {
+        citeMarks += '<span class="cite" title="Open source">' + (si + 1) + '</span>';
+      });
+    }
+    html += '<p>' + escapeHtml(p.trim()) + citeMarks + '</p>';
+  });
+  html += '<div class="msg-sources">';
+  item.sources.forEach(function(src, si) {
+    html += '<div class="msg-source"><b>' + (si + 1) + '</b><span>' + escapeHtml(src) + '</span></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function sendChat(preset) {
+  var input = document.getElementById('chat-input');
+  var text = preset || input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  appendMsg('user', escapeHtml(text));
+
+  var typing = appendMsg('ai', '<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div>Searching knowledge base…</div>');
+  // TODO(ai): swap setTimeout for streamed Anthropic API response.
+  setTimeout(function() {
+    var item = mockReply(text);
+    typing.querySelector('.msg-bubble').innerHTML = renderAnswer(item);
+    document.getElementById('chat-thread').scrollTop = 9e9;
+  }, 1300);
+}
+
+function buildChat() {
+  var row = document.getElementById('chat-suggests');
+  SUGGESTS.forEach(function(s) {
+    var b = document.createElement('div');
+    b.className = 'suggest';
+    b.textContent = s;
+    b.onclick = function() { sendChat(s); };
+    row.appendChild(b);
+  });
+  // seed greeting
+  appendMsg('ai', renderAnswer({
+    a: "Good morning, Mr. Harrison. I'm grounded in your office's 1,204 indexed documents and your institutional memory record. Ask me about procedure, ethics, a project, or a past decision — I'll cite the source for every answer.",
+    sources: ["Office Knowledge Base (1,204 documents)", "Institutional Memory Store"]
+  }));
+  var input = document.getElementById('chat-input');
+  input.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+}
+
+/* ---------- Ingestion (Feature 2: auto knowledge base sync) ---------- */
+var INGEST_SEED = [
+  { name: 'CBO_Score_HR2847_prelim.pdf', sub: 'PDF · from ~/Desktop', status: 'indexed', meta: '18 entities · just now' },
+  { name: 'Energy_Subcmte_hearing_notes.docx', sub: 'Word · from ~/Desktop', status: 'indexed', meta: '24 entities · 4 min ago' },
+  { name: 'TX07_cosponsor_email_thread.eml', sub: 'Email · from Outlook sync', status: 'indexed', meta: '9 entities · 22 min ago' },
+  { name: 'FY2026_LaborHHS_markup.pdf', sub: 'PDF · from ~/Desktop', status: 'indexed', meta: '41 entities · 1 hr ago' },
+  { name: 'Constituent_grant_casework.xlsx', sub: 'Spreadsheet · from ~/Documents/Casework', status: 'indexed', meta: '12 entities · 2 hr ago' }
+];
+var FAKE_DROPS = [
+  { name: 'Floor_speech_draft_v3.docx', sub: 'Word · from ~/Desktop' },
+  { name: 'Town_hall_briefing_book.pdf', sub: 'PDF · from ~/Desktop' },
+  { name: 'Whip_count_HR2847.xlsx', sub: 'Spreadsheet · from ~/Desktop' },
+  { name: 'Ethics_memo_gala_tickets.pdf', sub: 'PDF · from ~/Desktop' }
+];
+var dropN = 0;
+
+function statusBadge(status) {
+  if (status === 'indexed') return '<span class="pill p-open">Indexed</span>';
+  if (status === 'processing') return '<span class="pill p-review"><span class="spin"></span> Processing</span>';
+  return '<span class="pill p-closed">Queued</span>';
+}
+function fileGlyph(name) {
+  if (/\.pdf$/i.test(name)) return '▤';
+  if (/\.(docx?|eml)$/i.test(name)) return '▦';
+  if (/\.(xlsx?|csv)$/i.test(name)) return '▤';
+  return '□';
+}
+function renderFeedRow(f) {
+  return '<div class="feed-ico">' + fileGlyph(f.name) + '</div>' +
+         '<div><div class="feed-name">' + escapeHtml(f.name) + '</div><div class="feed-sub">' + escapeHtml(f.sub) + '</div></div>' +
+         '<div class="feed-stat"><span class="feed-sub" style="margin:0">' + (f.meta || '') + '</span>' + statusBadge(f.status) + '</div>';
+}
+function buildFeed() {
+  var wrap = document.getElementById('ingest-feed');
+  wrap.innerHTML = '';
+  INGEST_SEED.forEach(function(f) {
+    var row = document.createElement('div');
+    row.className = 'feed-row';
+    row.innerHTML = renderFeedRow(f);
+    wrap.appendChild(row);
+  });
+}
+function simulateIngest() {
+  // TODO(ai): real implementation receives a filesystem event here instead.
+  var f = FAKE_DROPS[dropN % FAKE_DROPS.length]; dropN++;
+  var wrap = document.getElementById('ingest-feed');
+  var row = document.createElement('div');
+  row.className = 'feed-row animate-in';
+  var processing = { name: f.name, sub: f.sub, status: 'processing', meta: 'parsing…' };
+  row.innerHTML = renderFeedRow(processing);
+  wrap.insertBefore(row, wrap.firstChild);
+  setTimeout(function() {
+    var ents = 6 + Math.floor(Math.random() * 30);
+    row.innerHTML = renderFeedRow({ name: f.name, sub: f.sub, status: 'indexed', meta: ents + ' entities · just now' });
+  }, 1700);
+}
+function toggleWatch() {
+  document.getElementById('watch-toggle').classList.toggle('on');
+}
+
+/* ---------- Get Up to Speed (Feature 3: exec briefs) ---------- */
+var briefRange = 'Last 7 days';
+function setRange(el, label) {
+  briefRange = label;
+  document.querySelectorAll('#brief-ranges .chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+}
+function generateBrief() {
+  var project = document.getElementById('brief-project').value;
+  var out = document.getElementById('brief-output');
+  out.classList.add('visible', 'animate-in');
+  out.innerHTML = '<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div>Compiling brief across ' + escapeHtml(briefRange.toLowerCase()) + '…</div>';
+  // TODO(ai): query date-filtered documents for `project` and summarize via Anthropic API.
+  setTimeout(function() {
+    out.innerHTML =
+      '<div class="gen-title">' + escapeHtml(project) + '</div>' +
+      '<div class="gen-sub">Executive brief · ' + escapeHtml(briefRange) + ' · synthesized from 23 documents &amp; 4 coordination threads</div>' +
+      '<div class="brief-section"><div class="brief-h">Where things stand</div><p class="brief-p">The office’s position is locked behind the bill with the negotiated rural broadband carve-out. TX-07 is the priority cosponsor target; their office is reviewing the CBO preliminary score before committing. Leadership has not yet scheduled floor time, so the working assumption remains markup-then-suspension rather than a discharge effort.</p></div>' +
+      '<div class="brief-section"><div class="brief-h">Key developments this period</div><ul class="brief-list"><li>CBO delivered a preliminary score; JCT is still reviewing the refundable-credit revenue impact.</li><li>Energy Subcommittee hearing prep advanced to 55% — CRS comparative grid-modernization analysis due May 12.</li><li>TX-07 signaled openness to cosponsor pending their internal whip count.</li><li>Floor speech draft moved to urgent (8/10); due May 9 with A. Cruz as lead.</li></ul></div>' +
+      '<div class="brief-section"><div class="brief-h">Decisions made</div><ul class="brief-list"><li>Retain the broadband carve-out as a red line in any amendment negotiation.</li><li>Pursue cosponsors before requesting floor time, not in parallel.</li></ul></div>' +
+      '<div class="brief-section"><div class="brief-h">Open items &amp; owners</div><ul class="brief-list"><li>Confirm TX-07 cosponsor commitment — <b>M. Harrison</b>, EOD Friday.</li><li>Finalize floor speech draft — <b>A. Cruz</b>, May 9.</li><li>Integrate CRS analysis into hearing prep — <b>T. Okafor</b>, May 12.</li></ul></div>' +
+      '<div class="source-tags" style="border-color:var(--border-light)"><span class="source-tag">H.R. 2847 Floor Debate Transcript</span><span class="source-tag">CBO Preliminary Score</span><span class="source-tag">TX-07 Coordination Thread</span><span class="source-tag">Energy Subcmte Hearing Notes</span><span class="source-tag">+19 documents</span></div>' +
+      '<div class="todo-note">Sample output. Production build summarizes the actual date-filtered document set via the Anthropic API (see <b>TODO(ai)</b>).</div>';
+  }, 1500);
+}
+
+/* ---------- Meeting Prep (Feature 5) ---------- */
+var MEETINGS = [
+  {
+    time: 'Today · 2:00 PM', title: 'TX-07 Cosponsor Sync', sub: 'Rep. Fletcher’s LD + CBO liaison',
+    location: 'Rayburn 2167 · 30 min',
+    attendees: [
+      { i: 'JP', n: 'J. Pruitt — Legislative Director, TX-07', note: 'Owns Fletcher’s cosponsor decision. Detail-oriented on pay-fors; last raised concern about the offset’s effect on rural hospitals.' },
+      { i: 'RM', n: 'R. Mendez — CBO Liaison', note: 'Delivered the preliminary score. Can speak to the refundable-credit assumptions JCT is still reviewing.' }
+    ],
+    context: 'TX-07 has reviewed the bill text and the CBO preliminary score and is weighing cosponsorship pending an internal whip count. Your prior two exchanges with Pruitt centered on the broadband carve-out (which they support) and the spending offset (where they want reassurance).',
+    points: ['Lead with the broadband carve-out — shared priority, builds goodwill.', 'Preempt the offset concern with the JCT timeline; offer to share the analysis when final.', 'Ask directly for a cosponsor commitment by Friday to align with the floor-time request.'],
+    questions: ['What would Fletcher need to see in the JCT review to feel comfortable?', 'Is the rural-hospital concern a red line or a messaging issue?'],
+    docs: ['CBO Preliminary Score', 'H.R. 2847 Bill Text', 'TX-07 Coordination Thread (14 msgs)']
+  },
+  {
+    time: 'Tomorrow · 9:30 AM', title: 'Energy Subcommittee Hearing Prep', sub: 'Internal — legislative team',
+    location: 'District Office · 45 min',
+    attendees: [
+      { i: 'TO', n: 'T. Okafor — Legislative Assistant', note: 'Leads hearing prep (55% complete). Coordinating the CRS analysis request.' },
+      { i: 'AC', n: 'A. Cruz — Communications', note: 'Drafting the Member’s opening statement; needs the CRS findings to finalize.' }
+    ],
+    context: 'The Energy Subcommittee hearing centers on grid resilience. CRS comparative analysis of state-level legislation is due May 12 and will anchor the Member’s questions and opening statement.',
+    points: ['Confirm CRS delivery date and fallback if it slips past May 12.', 'Align the Member’s questions with the broadband carve-out narrative for message consistency.', 'Assign witness-background research before the next check-in.'],
+    questions: ['Which witnesses are confirmed and who is hostile?', 'Do we have the Member’s top three questions drafted?'],
+    docs: ['Energy Subcmte Hearing Notes', 'CRS Research Request (pending)', 'Member Opening Statement draft']
+  }
+];
+function buildMeetings() {
+  var list = document.getElementById('meeting-list');
+  list.innerHTML = '';
+  MEETINGS.forEach(function(m, idx) {
+    var el = document.createElement('div');
+    el.className = 'meeting-item' + (idx === 0 ? ' active' : '');
+    el.onclick = function() { selectMeeting(idx, el); };
+    el.innerHTML = '<div class="mi-time">' + m.time + '</div><div class="mi-title">' + escapeHtml(m.title) + '</div><div class="mi-sub">' + escapeHtml(m.sub) + '</div>';
+    list.appendChild(el);
+  });
+  selectMeeting(0, null);
+}
+function selectMeeting(idx, el) {
+  document.querySelectorAll('.meeting-item').forEach(function(m){ m.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  else { var first = document.querySelector('.meeting-item'); if (first) first.classList.add('active'); }
+  var m = MEETINGS[idx];
+  // TODO(ai): generate this dossier from calendar + retrieved documents via Anthropic API.
+  var html = '<div class="dossier-head"><div class="dossier-title">' + escapeHtml(m.title) + '</div><div class="dossier-meta">' + m.time + ' · ' + escapeHtml(m.location) + '</div></div>';
+  html += '<div class="brief-section"><div class="brief-h">Attendees</div>';
+  m.attendees.forEach(function(a) {
+    html += '<div class="attendee"><div class="att-avatar">' + a.i + '</div><div><div class="att-name">' + escapeHtml(a.n) + '</div><div class="att-note">' + escapeHtml(a.note) + '</div></div></div>';
+  });
+  html += '</div>';
+  html += '<div class="brief-section"><div class="brief-h">Context &amp; history</div><p class="brief-p">' + escapeHtml(m.context) + '</p></div>';
+  html += '<div class="brief-section"><div class="brief-h">Talking points</div><ul class="brief-list">' + m.points.map(function(p){ return '<li>' + escapeHtml(p) + '</li>'; }).join('') + '</ul></div>';
+  html += '<div class="brief-section"><div class="brief-h">Suggested questions</div><ul class="brief-list">' + m.questions.map(function(q){ return '<li>' + escapeHtml(q) + '</li>'; }).join('') + '</ul></div>';
+  html += '<div class="brief-section"><div class="brief-h">Documents to have ready</div><div class="source-tags" style="border:none;padding-top:0">' + m.docs.map(function(d){ return '<span class="source-tag">' + escapeHtml(d) + '</span>'; }).join('') + '</div></div>';
+  document.getElementById('dossier').innerHTML = html;
+}
+
+/* ---------- Compliance Validation (Feature 6) ---------- */
+function setVal(text) { document.getElementById('val-input').value = text; }
+function runValidation() {
+  var input = document.getElementById('val-input').value;
+  var out = document.getElementById('val-output');
+  out.classList.add('visible', 'animate-in');
+  out.innerHTML = '<div class="ai-loading"><div class="dots"><span></span><span></span><span></span></div>Checking against ethics, gift, franking &amp; appropriations rules…</div>';
+  // TODO(ai): send `input` + governing rule set to Anthropic API; render returned findings.
+  setTimeout(function() {
+    var findings = [
+      { s: 'fail', icon: '✕', name: 'Gift Rule — Lobbyist-provided meal', detail: 'A $120 dinner hosted by a registered lobbyist is prohibited regardless of value under HLOGA. This cannot be accepted; decline or reimburse at fair market value and document.', cite: 'House Ethics Manual 2025, Ch. 4 · HLOGA (P.L. 110-81)' },
+      { s: 'warn', icon: '!', name: 'Franking — Fundraising content in official mailer', detail: 'Official resources and the franking privilege may not be used for fundraising or campaign solicitation. The fundraising link must be removed before this mailer can go out under the frank.', cite: 'House Franking Rules · 39 U.S.C. § 3210' },
+      { s: 'warn', icon: '!', name: 'Pre-election mailing window', detail: 'If a mass mailing is planned, confirm it falls outside the 90-day pre-primary/general blackout period for the district.', cite: 'House Communications Standards Manual' },
+      { s: 'pass', icon: '✓', name: 'Town hall promotion — official business', detail: 'Promoting a Member town hall is permissible official constituent communication, provided it contains no campaign or fundraising elements.', cite: 'House Communications Standards Manual' }
+    ];
+    var html = '<div class="gen-title" style="font-size:17px">Validation result</div><div class="gen-sub">2 issues require action · 1 to confirm · reviewed against 4 rule categories</div>';
+    findings.forEach(function(f) {
+      html += '<div class="rule-row"><div class="rule-icon r-' + f.s + '">' + f.icon + '</div><div><div class="rule-name">' + escapeHtml(f.name) + ' <span class="pill p-' + (f.s === 'fail' ? 'urgent' : f.s === 'warn' ? 'review' : 'open') + '">' + (f.s === 'fail' ? 'Fail' : f.s === 'warn' ? 'Flag' : 'Pass') + '</span></div><div class="rule-detail">' + escapeHtml(f.detail) + '</div><div class="rule-cite">◈ ' + escapeHtml(f.cite) + '</div></div></div>';
+    });
+    html += '<div class="todo-note">Sample findings. Production build evaluates the submission against the office’s governing rule set via the Anthropic API (see <b>TODO(ai)</b>). Not legal advice — confirm with the House Ethics Committee.</div>';
+    out.innerHTML = html;
+  }, 1500);
+}
+
+/* ---------- Panel switching ---------- */
 function switchPanel(id, navEl) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   document.getElementById('panel-' + id).classList.add('active');
   navEl.classList.add('active');
   var titles = {
-    kb:      ['Knowledge Base',            '1,204 documents \u00b7 Last indexed 4 min ago'],
-    search:  ['Semantic Search',           'AI-powered search across all indexed documents'],
-    reports: ['Reports',                   '47 open \u00b7 3 urgent'],
-    coord:   ['Inter-Office Coordination', '4 active threads across 6 offices']
+    assistant:  ['Assistant',                  'Knowledge-grounded chat · cites office documents'],
+    kb:         ['Knowledge Base',              '1,204 documents · Last indexed 4 min ago'],
+    ingestion:  ['Knowledge Ingestion',         'Auto-sync · watching ~/Desktop'],
+    briefs:     ['Get Me Up to Speed',          'Executive briefs across projects & date ranges'],
+    prep:       ['Meeting Prep',                'Pre-meeting dossiers from your knowledge base'],
+    memory:     ['Institutional Memory',        'Continuity layer · knowledge persists across transitions'],
+    search:     ['Semantic Search',             'AI-powered search across all indexed documents'],
+    reports:    ['Reports',                     '47 open · 3 urgent'],
+    coord:      ['Inter-Office Coordination',   '4 active threads across 6 offices'],
+    compliance: ['Compliance Validation',       'Validate against ethics, gift & franking rules']
   };
   var t = titles[id] || ['Ordinance', ''];
   document.getElementById('topbar-title').textContent = t[0];
   document.getElementById('topbar-meta').textContent  = t[1];
 }
 
+/* ---------- utils ---------- */
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ---------- init ---------- */
 buildGrids();
+buildChat();
+buildFeed();
+buildMeetings();
 </script>
 </body>
 </html>
