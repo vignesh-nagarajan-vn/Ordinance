@@ -1,12 +1,12 @@
-# Ordinance — CLAUDE.md
+# Ordinance: CLAUDE.md
 
 ## What this project is
 
 **Ordinance** is an AI-powered operating system for Congressional offices, branded as "Capitol Intelligence." This repo contains:
 
-1. **Landing site** — Next.js 15 marketing site deployed to GitHub Pages
-2. **Demo app** — interactive mock dashboard at `/demo` simulating a congressional office OS
-3. **Legacy directory** — the original Vite/React app from the Lovable platform (kept for history, not actively developed)
+1. **Landing site**: Next.js 15 marketing site deployed to GitHub Pages
+2. **Demo app**: interactive mock dashboard at `/demo` simulating a congressional office OS
+3. **Legacy directory**: the original Vite/React app from the Lovable platform (kept for history, not actively developed)
 
 ## Tech stack
 
@@ -16,15 +16,15 @@
 | UI | React 19, Tailwind CSS 3 |
 | Language | TypeScript 5.7 |
 | Hosting | GitHub Pages (deploys on push to `main`) |
-| CI/CD | `.github/workflows/deploy.yml` — builds then uploads `./out` |
+| CI/CD | `.github/workflows/deploy.yml` builds then uploads `./out` |
 
 ## Repo layout
 
 ```
 app/
-  page.tsx          # Home — assembles landing sections
+  page.tsx          # Home page, assembles landing sections
   why/page.tsx      # /why page
-  demo/page.tsx     # /demo — fully self-contained interactive dashboard
+  demo/page.tsx     # /demo, fully self-contained interactive dashboard
   layout.tsx        # Root layout (fonts, globals)
   globals.css
 components/
@@ -32,28 +32,32 @@ components/
   ui/               # Container, Eyebrow, FeatureCell, GetDemoButton, GoldLeaves, icons
 lib/
   assetPath.ts      # Utility for GitHub Pages asset prefix
+ordinance-ai-engine/
+  demo-app.html     # Full dashboard UI with live Claude Haiku integration
+  dynamic-engine-v1.html  # Earlier iteration of the AI engine
+  README.md         # Setup and usage notes
 public/ordinance/   # Brand images (logo, feature cards, actionable insights screenshot)
 legacy/             # Original Lovable/Vite app (not deployed)
 ```
 
 ## Landing page sections (in order)
 
-1. **Navbar** — top nav with logo and CTA
-2. **Hero** — "Introducing Capitol Intelligence." headline with animated gold-leaf decoration
-3. **ModernTools** — feature grid showing what Ordinance replaces
-4. **ActionableInsights** — highlights the core "AI" (Actionable Insights) concept
-5. **DemoCTA** — drives visitors to `/demo`
+1. **Navbar**: top nav with logo and CTA
+2. **Hero**: "Introducing Capitol Intelligence." headline with animated gold-leaf decoration
+3. **ModernTools**: feature grid showing what Ordinance replaces
+4. **ActionableInsights**: highlights the core "AI" (Actionable Insights) concept
+5. **DemoCTA**: drives visitors to `/demo`
 6. **Footer**
 
 ## Demo app (`/demo`)
 
-A fully static, client-side dashboard that simulates the Ordinance product. No external API calls — safe for GitHub Pages.
+A fully static, client-side dashboard that simulates the Ordinance product. No external API calls, safe for GitHub Pages.
 
 Four panels:
-- **Knowledge Base** — natural-language queries over 6 hardcoded government docs (EPA, CISA, CEQ, OMB circulars). Keyword-scored retrieval with a 450 ms simulated delay.
-- **Semantic Search** — same `KbPanel` component reused with different placeholder queries
-- **Reports** — table of mock compliance reports with priority bars and status pills
-- **Inter-Agency Coordination** — thread list showing multi-agency coordination scenarios (EPA/USACE/DOI/FERC/DoD/NMFS)
+- **Knowledge Base**: natural-language queries over 6 hardcoded government docs (EPA, CISA, CEQ, OMB circulars). Keyword-scored retrieval with a 450 ms simulated delay.
+- **Semantic Search**: same `KbPanel` component reused with different placeholder queries
+- **Reports**: table of mock compliance reports with priority bars and status pills
+- **Inter-Agency Coordination**: thread list showing multi-agency coordination scenarios (EPA/USACE/DOI/FERC/DoD/NMFS)
 
 All demo content is inlined in `app/demo/page.tsx` including the full CSS string (`DEMO_CSS`).
 
