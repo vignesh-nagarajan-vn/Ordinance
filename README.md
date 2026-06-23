@@ -12,18 +12,24 @@ An AI-powered operating system for Congressional offices, branded as Capitol Int
   <img src="https://img.shields.io/badge/Next.js-black.svg?style=for-the-badge&logo=next.js&logoColor=white">
   <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white">
   <img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white">
+  <img src="https://img.shields.io/badge/postcss-DD3A0A.svg?style=for-the-badge&logo=postcss&logoColor=white">
 </p>
 
 <!--- Backend & Infra --->
 <p align="center">
   <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white">
+  <img src="https://img.shields.io/badge/npm-%23CB3837.svg?style=for-the-badge&logo=npm&logoColor=white">
   <img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white">
   <img src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white">
+  <img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white">
 </p>
 
-<!--- AI --->
+<!--- AI & Retrieval --->
 <p align="center">
-  <img src="https://img.shields.io/badge/Anthropic%20Claude-D97757.svg?style=for-the-badge&logo=anthropic&logoColor=white">
+  <img src="https://img.shields.io/badge/Claude%20Haiku%204.5-D97757.svg?style=for-the-badge&logo=anthropic&logoColor=white">
+  <img src="https://img.shields.io/badge/Anthropic%20SDK-191919.svg?style=for-the-badge&logo=anthropic&logoColor=white">
+  <img src="https://img.shields.io/badge/RAG-Retrieval--Augmented%20Generation-5A4FCF.svg?style=for-the-badge">
+  <img src="https://img.shields.io/badge/serverless%20functions-%23FD5750.svg?style=for-the-badge&logo=vercel&logoColor=white">
 </p>
 
 ## Overview
