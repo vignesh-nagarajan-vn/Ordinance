@@ -4,40 +4,50 @@
 
 **Ordinance** is an AI-powered operating system for Congressional offices, branded as "Capitol Intelligence." This repo contains:
 
-1. **Landing site**: Next.js 15 marketing site deployed to GitHub Pages
-2. **Demo app**: interactive mock dashboard at `/demo` simulating a congressional office OS
-3. **Legacy directory**: the original Vite/React app from the Lovable platform (kept for history, not actively developed)
+1. **Landing site**: Next.js 15 marketing site
+2. **AI demo app**: interactive dashboard at `/demo` backed by a serverless RAG API that calls Claude Haiku 4.5
+3. **Standalone AI engine**: a single-file HTML app in `ordinance-ai-engine/` (bring-your-own-key)
+4. **Legacy directory**: the original Vite/React app from the Lovable platform (kept for history, not actively developed)
 
 ## Tech stack
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Next.js 15 (static export via `output: "export"`) |
+| Framework | Next.js 15 (App Router, serverless API routes) |
 | UI | React 19, Tailwind CSS 3 |
 | Language | TypeScript 5.7 |
-| Hosting | GitHub Pages (deploys on push to `main`) |
-| CI/CD | `.github/workflows/deploy.yml` builds then uploads `./out` |
+| AI | Anthropic Claude API (`claude-haiku-4-5`) via `@anthropic-ai/sdk` |
+| Hosting | Vercel (serverless functions run the API routes) |
 
 ## Repo layout
 
 ```
 app/
-  page.tsx          # Home page, assembles landing sections
-  why/page.tsx      # /why page
-  demo/page.tsx     # /demo, fully self-contained interactive dashboard
-  layout.tsx        # Root layout (fonts, globals)
+  api/
+    query/route.ts        # RAG query endpoint: retrieval + Claude Haiku, key from server env
+    summarize/route.ts    # AI summary endpoint for reports and coordination threads
+  page.tsx                # Home page, assembles landing sections
+  why/page.tsx            # /why page
+  demo/page.tsx           # /demo, interactive dashboard wired to the backend
+  layout.tsx              # Root layout (fonts, globals)
   globals.css
 components/
-  sections/         # Hero, Navbar, ModernTools, ActionableInsights, DemoCTA, Footer
-  ui/               # Container, Eyebrow, FeatureCell, GetDemoButton, GoldLeaves, icons
+  sections/               # Hero, Navbar, ModernTools, ActionableInsights, DemoCTA, Footer
+  ui/                     # Container, Eyebrow, FeatureCell, GetDemoButton, GoldLeaves, icons
 lib/
-  assetPath.ts      # Utility for GitHub Pages asset prefix
+  anthropic.ts            # Server-side Anthropic client (Haiku 4.5)
+  knowledgeBase.ts        # Shared document corpus and KbDoc type
+  retriever.ts            # Retrieval layer for RAG (lexical now, vector-ready)
+  clientStore.ts          # Browser persistence: uploaded docs + audit log
+  exportShare.ts          # Export (Markdown/JSON) and share-link helpers
+  assetPath.ts            # Asset path helper
 ordinance-ai-engine/
-  demo-app.html     # Full dashboard UI with live Claude Haiku integration
+  demo-app.html           # Full dashboard UI with live Claude Haiku integration
   dynamic-engine-v1.html  # Earlier iteration of the AI engine
-  README.md         # Setup and usage notes
-public/ordinance/   # Brand images (logo, feature cards, actionable insights screenshot)
-legacy/             # Original Lovable/Vite app (not deployed)
+  README.md               # Setup and usage notes
+public/ordinance/         # Brand images (logo, feature cards, actionable insights screenshot)
+legacy/                   # Original Lovable/Vite app (not deployed)
+.env.example              # Documents the ANTHROPIC_API_KEY environment variable
 ```
 
 ## Landing page sections (in order)
@@ -51,15 +61,19 @@ legacy/             # Original Lovable/Vite app (not deployed)
 
 ## Demo app (`/demo`)
 
-A fully static, client-side dashboard that simulates the Ordinance product. No external API calls, safe for GitHub Pages.
+A client dashboard wired to the serverless backend. Panels:
 
-Four panels:
-- **Knowledge Base**: natural-language queries over 6 hardcoded government docs (EPA, CISA, CEQ, OMB circulars). Keyword-scored retrieval with a 450 ms simulated delay.
-- **Semantic Search**: same `KbPanel` component reused with different placeholder queries
-- **Reports**: table of mock compliance reports with priority bars and status pills
-- **Inter-Agency Coordination**: thread list showing multi-agency coordination scenarios (EPA/USACE/DOI/FERC/DoD/NMFS)
+- **Knowledge Base** and **Semantic Search**: natural-language queries answered live by Claude Haiku 4.5 through `/api/query`, grounded in retrieved documents with cited sources.
+- **Documents**: upload text documents that are stored in the browser and sent with each query so they are retrieved alongside the built-in corpus.
+- **Reports**: filter, search, and sort mock compliance reports, with an AI "Summarize" action per report via `/api/summarize`.
+- **Inter-Agency Coordination**: filter and search threads (EPA/USACE/DOI/FERC/DoD/NMFS), with an AI "Summarize" action per thread.
+- **Audit Trail**: compliance log of every query and action, stored in the browser.
 
-All demo content is inlined in `app/demo/page.tsx` including the full CSS string (`DEMO_CSS`).
+The demo also supports exporting an AI answer as Markdown or JSON, copying it, and generating a shareable link. The demo CSS is inlined via a `<style dangerouslySetInnerHTML>` string (`DEMO_CSS`).
+
+## RAG pipeline
+
+`app/api/query/route.ts` runs the flow: retrieve relevant documents from the built-in corpus (`lib/knowledgeBase.ts`) plus any user-uploaded documents, build a grounded prompt, call Claude Haiku 4.5, and return the answer with cited source IDs. Retrieval lives behind `lib/retriever.ts` as a single `retrieve()` function so the lexical implementation can be swapped for a vector store later without changing call sites.
 
 ## Brand / design
 
@@ -73,16 +87,19 @@ All demo content is inlined in `app/demo/page.tsx` including the full CSS string
 ```bash
 npm install       # install dependencies
 npm run dev       # local dev server at http://localhost:3000
-npm run build     # static export to ./out
+npm run build     # production build
 npm run lint      # ESLint
 ```
 
+Set `ANTHROPIC_API_KEY` in `.env.local` for the `/demo` AI features to work locally.
+
 ## Deployment
 
-Pushing to `main` triggers the GitHub Actions workflow which runs `npm ci && npm run build` and deploys `./out` to GitHub Pages. The `lib/assetPath.ts` helper handles the `/Ordinance` base path prefix for assets in the Pages environment.
+The app deploys to Vercel as a standard Next.js application. Vercel runs the API routes as serverless functions and holds `ANTHROPIC_API_KEY` as a server-side environment variable (not prefixed with `NEXT_PUBLIC_`), so the key never reaches the browser. GitHub Pages is not used because it cannot run the backend needed to keep the key private.
 
 ## Key design decisions
 
-- **Fully static demo**: the knowledge base search and all demo data live in the client bundle so the demo works without any backend, API keys, or server.
-- **CSS-in-JS for the demo**: the demo component injects its styles via a `<style dangerouslySetInnerHTML>` string (`DEMO_CSS`) to keep the demo self-contained and avoid Tailwind class conflicts.
-- **Legacy directory**: the `legacy/` folder holds the original Lovable-generated React/Vite codebase, imported via `git` history. It is not built or deployed by the current workflow.
+- **Server-side key**: all Anthropic calls happen in `app/api/*` route handlers. The browser only calls those routes, so the API key stays private. This is why the app moved off GitHub Pages static export to Vercel.
+- **Swappable retrieval**: `lib/retriever.ts` isolates retrieval behind one function so lexical retrieval can later become vector retrieval without touching the API route or UI.
+- **Demo persistence in the browser**: uploaded documents and the audit log live in `localStorage` so the demo is fully functional on a stateless serverless host with no database. In production these would move server-side.
+- **Legacy directory**: the `legacy/` folder holds the original Lovable-generated React/Vite codebase. It is not built or deployed.

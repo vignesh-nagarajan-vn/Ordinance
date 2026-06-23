@@ -1,15 +1,11 @@
 import type { NextConfig } from "next";
 
-const repo = "Ordinance";
-const isProd = process.env.NODE_ENV === "production";
-
+// Deployed on Vercel as a full Next.js app (with serverless API routes), so we
+// no longer use static export / GitHub Pages basePath. The /api routes need a
+// server runtime to proxy the Anthropic API and keep the key off the client.
 const config: NextConfig = {
   reactStrictMode: true,
-  output: "export",
   images: { unoptimized: true },
-  basePath: isProd ? `/${repo}` : "",
-  assetPrefix: isProd ? `/${repo}/` : "",
-  trailingSlash: true,
 };
 
 export default config;
